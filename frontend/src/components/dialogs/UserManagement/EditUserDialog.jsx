@@ -7,16 +7,9 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const EditUserDialog = ({ isOpen, onClose, user, onSave, roles }) => {
+
     const [formData, setFormData] = useState(user);
     const [isChangePassword, setIsChangePassword] = useState(false);
-
-    useEffect(() => {
-        setFormData(user);
-    }, [user]);
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
 
     const handleSubmit = () => {
         const payload = {
@@ -36,6 +29,14 @@ const EditUserDialog = ({ isOpen, onClose, user, onSave, roles }) => {
     };
 
     useEffect(() => {
+        setFormData(user);
+    }, [user]);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    useEffect(() => {
         if (user) {
             setFormData({
                 user_id: user.user_id,
@@ -46,6 +47,8 @@ const EditUserDialog = ({ isOpen, onClose, user, onSave, roles }) => {
             });
         }
     }, [user]);
+
+    if (!user) return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -75,7 +78,7 @@ const EditUserDialog = ({ isOpen, onClose, user, onSave, roles }) => {
                                     role_id: parseInt(value),
                                 })
                             }
-                            value={formData.role_id?.toString() || ""}
+                            value={formData?.role?.role_id?.toString() || ""}
                         >
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select Role" />

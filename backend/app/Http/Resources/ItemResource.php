@@ -17,7 +17,7 @@ class ItemResource extends JsonResource
             'unit' => $this->unit,
             'acquisition_date' => $this->acquisition_date,
             'category' => new ItemCategoryResource($this->whenLoaded('category')),
-            'item_units_count' => $itemUnitsCount, // Safely access count
+            'item_units_count' => $itemUnitsCount,
             'item_units' => ItemUnitResource::collection($itemUnits),
             'date_created' => $this->date_created,
             'date_updated' => $this->date_updated,

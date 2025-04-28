@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BorrowRequestController;
 use App\Http\Controllers\ItemCategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemUnitController;
@@ -25,3 +26,14 @@ Route::post('/items-with-units', [
 
 Route::apiResource('item-units', ItemUnitController::class);
 
+Route::apiResource('borrow-requests', BorrowRequestController::class);
+
+Route::put('/borrow-requests-status/{id}', [
+    BorrowRequestController::class,
+    'updateRequestStatus'
+]);
+
+Route::put('/borrow-requests-details/{id}', [
+    BorrowRequestController::class,
+    'updateRequestDetails'
+]);
