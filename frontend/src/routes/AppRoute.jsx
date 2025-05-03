@@ -17,8 +17,8 @@ const WithSidebar = () => (
         <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-                <div className="w-full p-3 overflow-auto">
-                    <SidebarTrigger className="-ml-0 mb-2" />
+                <div className="w-full p-2 overflow-auto">
+                    <SidebarTrigger className="-ml-0" />
                     <Outlet />
                 </div>
             </SidebarInset>

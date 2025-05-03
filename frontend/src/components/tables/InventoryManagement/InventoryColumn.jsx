@@ -4,7 +4,7 @@ export const columns = (onViewDetails) => [
     { accessorKey: "item_id", header: "ID" },
     { accessorKey: "name", header: "Name" },
     { accessorKey: "category.category_name", header: "Category" },
-    { accessorKey: "item_units_count", header: "Available Qty" },
+    { accessorKey: "item_units_count", header: "Available Quantity" },
     { accessorKey: "unit", header: "Unit" },
     {
         accessorKey: "acquisition_date",

@@ -1,7 +1,7 @@
+import DataTable from "@/components/tables/DataTable";
+import getUnitColumns from "@/components/tables/InventoryManagement/ItemDetailColumn";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"; // You can create a custom Table or use an existing one
 import PropTypes from "prop-types";
 import { useState } from "react";
 import BorrowedHistoryDialog from "../BorrowedHistoryDialog";
@@ -27,6 +27,12 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
         setSelectedUnit(unit);
         setIsHistoryOpen(true);
     };
+
+    const columns = getUnitColumns({
+        onUpdateUnit: onUpdateUnit,
+        onDeleteUnit: onDeleteUnit,
+        onViewHistory: handleRowClick
+    });
 
     return (
         <>
@@ -71,60 +77,9 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
                             <strong>Total Units:</strong> {item.item_units_count}
                         </h1>
                         <h2 className="mb-2 font-bold">Units</h2>
-                        <ScrollArea className="h-96">
-                            <Table className="min-w-full">
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Property No.</TableHead>
-                                        <TableHead>Brand</TableHead>
-                                        <TableHead>Model</TableHead>
-                                        <TableHead>Specification</TableHead>
-                                        <TableHead>Condition</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {item.item_units.map((unit) => (
-                                        <TableRow
-                                            key={unit.unit_id}
-                                            className="cursor-pointer hover:bg-gray-100"
-                                            onClick={() => handleRowClick(unit)}
-                                        >
-                                            <TableCell>{unit.property_no}</TableCell>
-                                            <TableCell>{unit.brand}</TableCell>
-                                            <TableCell>{unit.model}</TableCell>
-                                            <TableCell>{unit.specification || <span className="text-gray-400">N/A</span>}</TableCell>
-                                            <TableCell>{unit.item_condition}</TableCell>
-                                            <TableCell>{unit.status}</TableCell>
-                                            <TableCell>
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation(); // prevent row click
-                                                        console.log(`Edit Unit: ${unit.unit_id}`);
-                                                        onUpdateUnit(unit);
-                                                    }}
-                                                >
-                                                    Edit
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation(); // prevent row click
-                                                        console.log(`Delete Unit: ${unit.unit_id}`);
-                                                        onDeleteUnit(unit);
-                                                    }}
-                                                    className="text-red-500 ml-2"
-                                                >
-                                                    Delete
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </ScrollArea>
+
+                        <DataTable columns={columns} data={item.item_units} searchKeys={[]} filters={[]} isLoading={false} entrySize={5} showEntries={false} showSearchFilter={false}/>
+                    
                     </div>
                 </DialogContent>
             </Dialog>
