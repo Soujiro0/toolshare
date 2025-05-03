@@ -6,9 +6,10 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
+
 library.add(fas);
 
-const LoginForm = ({ handleSubmit, setUser, setPassword }) => {
+const LoginForm = ({ handleSubmit }) => {
     const form = useForm({
         defaultValues: {
             username: "",
@@ -17,9 +18,7 @@ const LoginForm = ({ handleSubmit, setUser, setPassword }) => {
     });
 
     const onSubmit = (values) => {
-        setUser(values.username);
-        setPassword(values.password);
-        handleSubmit({ preventDefault: () => {} });
+        handleSubmit(values);
     };
 
     return (
@@ -41,7 +40,13 @@ const LoginForm = ({ handleSubmit, setUser, setPassword }) => {
                                 <FormItem>
                                     <FormLabel className="my-2">Username</FormLabel>
                                     <FormControl>
-                                        <Input className="font-medium" type="text" placeholder="Enter your username" {...field} icon={"user"} />
+                                        <Input 
+                                            className="font-medium" 
+                                            type="text" 
+                                            placeholder="Enter your username" 
+                                            {...field} 
+                                            icon={"user"} 
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -55,13 +60,24 @@ const LoginForm = ({ handleSubmit, setUser, setPassword }) => {
                                 <FormItem>
                                     <FormLabel className="my-2">Password</FormLabel>
                                     <FormControl>
-                                        <Input className="font-medium" type="password" placeholder="Enter your password" {...field} icon={"lock"} />
+                                        <Input 
+                                            className="font-medium" 
+                                            type="password" 
+                                            placeholder="Enter your password" 
+                                            {...field} 
+                                            icon={"lock"} 
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" customColor={true} size="lg" className="bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-[var(--text-color-light)] w-full">
+                        <Button 
+                            type="submit" 
+                            customColor={true} 
+                            size="lg" 
+                            className="bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-[var(--text-color-light)] w-full"
+                        >
                             Log In
                         </Button>
                     </form>
@@ -73,8 +89,6 @@ const LoginForm = ({ handleSubmit, setUser, setPassword }) => {
 
 LoginForm.propTypes = {
     handleSubmit: PropTypes.func.isRequired,
-    setUser: PropTypes.func.isRequired,
-    setPassword: PropTypes.func.isRequired,
 };
 
 export default LoginForm;
