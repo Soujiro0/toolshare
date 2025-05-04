@@ -4,9 +4,11 @@ import DeleteUnitDialog from "@/components/dialogs/InventoryManagement/DeleteUni
 import EditItemDialog from "@/components/dialogs/InventoryManagement/EditItemDialog";
 import ItemDetailDialog from "@/components/dialogs/InventoryManagement/ItemDetailDialog";
 import UpdateUnitDialog from "@/components/dialogs/InventoryManagement/UpdateUnitDialog";
-import columns from "@/components/tables/InventoryManagement/InventoryColumn";
-import InventoryDataTable from "@/components/tables/InventoryManagement/InventoryDataTable";
+import DataTable from "@/components/tables/DataTable";
+import { getColumns } from "@/components/tables/InventoryManagement/ItemColumn";
+import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ApiService from "../../api/ApiService";
@@ -32,8 +34,8 @@ const Inventory = () => {
         }
     };
 
-    const handleCloseDetail = () => {
-        setDetailDialogOpen(false);
+    const handleCloseDetail = (close) => {
+        setDetailDialogOpen(close);
         setSelectedItem(null);
     };
 
@@ -59,23 +61,20 @@ const Inventory = () => {
         setDeleteUnitDialogOpen(true);
     };
 
-    const fetchCategories = async () => {
-        try {
-            const response = await ApiService.ItemCategoryService.getAllCategories();
-            setCategories(response.data);
-            console.log(response);
-        } catch (error) {
-            console.log("Error fetching categories", error);
-        }
+    const refreshInventory = (closeModal) => {
+        fetchInitialData();
+        if (typeof closeModal === "function") closeModal(false);
     };
 
-    const fetchItems = async () => {
+    const fetchInitialData = async () => {
         setLoading(true);
         try {
-            const response = await ApiService.ItemService.getItems();
-            setInventory(response.data);
+            const [categoryRes, itemRes] = await Promise.all([ApiService.ItemCategoryService.getAllCategories(), ApiService.ItemService.getItems()]);
+
+            setCategories(categoryRes.data);
+            setInventory(itemRes.data);
         } catch (error) {
-            console.error("Error fetching items:", error);
+            console.error("Error fetching initial data:", error);
         } finally {
             setLoading(false);
         }
@@ -94,7 +93,7 @@ const Inventory = () => {
             console.error("Error adding item:", error);
             toast.error("Error adding item");
         } finally {
-            fetchItems();
+            refreshInventory(setAddItemDialogOpen);
         }
     };
 
@@ -110,8 +109,7 @@ const Inventory = () => {
             console.log("Error updating item:", error);
             toast.error("Error updating item");
         } finally {
-            fetchItems();
-            handleCloseDetail();
+            refreshInventory(handleCloseDetail);
         }
     };
 
@@ -128,8 +126,7 @@ const Inventory = () => {
             console.log("Error deleting item:", error);
             toast.error("Error deleting item");
         } finally {
-            fetchItems();
-            handleCloseDetail();
+            refreshInventory(handleCloseDetail);
         }
     };
 
@@ -145,8 +142,7 @@ const Inventory = () => {
             console.log("Error updating item unit:", error);
             toast.error("Error updating item unit");
         } finally {
-            fetchItems();
-            handleCloseDetail();
+            refreshInventory(handleCloseDetail);
         }
     };
 
@@ -162,14 +158,25 @@ const Inventory = () => {
             console.log("Error deleting item unit:", error);
             toast.error("Error deleting item unit");
         } finally {
-            fetchItems();
-            handleCloseDetail();
+            refreshInventory(handleCloseDetail);
         }
     };
 
+    const filters = [
+        {
+            label: "Category",
+            key: "category.category_name",
+            values: categories.map((cat) => cat.category_name),
+            type: "select",
+        },
+    ];
+
+    const columns = getColumns({
+        onViewDetails: handleViewDetails,
+    });
+
     useEffect(() => {
-        fetchCategories();
-        fetchItems();
+        fetchInitialData();
     }, []);
 
     return (
@@ -177,7 +184,16 @@ const Inventory = () => {
             <Toaster richColors position="top-center" expand={true} />
             <img src="/public/computer.png" alt="" />
             <Header headerTitle="Inventory Management" />
-            <InventoryDataTable columns={columns} data={inventory} onViewDetails={handleViewDetails} openAddItem={setAddItemDialogOpen} loading={loading} />
+
+            <div className="flex items-center justify-end mb-4">
+                <Button className="ml-auto" onClick={() => setAddItemDialogOpen(true)}>
+                    <Plus />
+                    <span>Add New Item</span>
+                </Button>
+            </div>
+
+            <DataTable columns={columns} data={inventory} searchKeys={["name"]} filters={filters} isLoading={loading} />
+
             <ItemDetailDialog
                 isOpen={detailDialogOpen}
                 onClose={handleCloseDetail}

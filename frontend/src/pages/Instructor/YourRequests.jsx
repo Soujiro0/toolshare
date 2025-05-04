@@ -1,51 +1,103 @@
 import ApiService from "@/api/ApiService";
+import DeleteRequestDialog from "@/components/dialogs/BorrowingManagement/DeleteRequestDialog";
+import EditRequestDialog from "@/components/dialogs/BorrowingManagement/EditRequestDialog";
 import Header from "@/components/layout/Header";
-import RequestsTable from "@/components/tables/RequestTable";
-import { Button } from "@/components/ui/button";
-import FilterBar from "@/components/ui/custom/FilterBar";
-// import Pagination from "@/components/ui/custom/Pagination";
+import { getRequestColumns } from "@/components/tables/BorrowingManagement/RequestColumn";
+import DataTable from "@/components/tables/DataTable";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthContext } from "@/context/AuthContext";
 import { useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const YourRequests = () => {
     const { auth } = useContext(AuthContext);
     const userId = auth.user?.user_id;
 
-    const [requests, setRequests] = useState([]);
-    const [filtered, setFiltered] = useState([]);
-    const [filters, setFilters] = useState({ search: "", status: "", date: "" });
-    // const [pagination, setPagination] = useState({ page: 1, perPage: 5 });
+    const [data, setData] = useState([]);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [selectedRequest, setSelectedRequest] = useState(null);
 
     const fetchRequests = async () => {
         try {
-            const data = await ApiService.RequestBorrowService.getUserRequests(userId);
-            console.log("Fetched requests:", data);
-            setRequests(data.data);
-            setFiltered(data.data);
+            const res = await ApiService.RequestBorrowService.getUserRequests(userId);
+            setData(res.data);
         } catch (error) {
             console.error("Error fetching requests:", error);
         }
-    }
+    };
+
+    const openDeleteDialog = (request) => {
+        setSelectedRequest(request);
+        setDeleteDialogOpen(true);
+    };
+
+    const openEditDialog = (request) => {
+        setSelectedRequest(request);
+        setEditDialogOpen(true);
+    };
+
+    const handleEditRequestSubmit = async (payload) => {
+        try {
+            await ApiService.RequestBorrowService.updateRequestFaculty(selectedRequest.request_id, payload);
+            toast.success("Request updated successfully", {
+                description: "Your request has been updated.",
+            });
+    
+            fetchRequests(); // Ensure DB state is fetched fresh
+            setEditDialogOpen(false);
+        } catch (error) {
+            console.error("Error updating request:", error);
+            toast.error("Error updating request");
+        }
+    };    
+
+    const handleDeleteRequest = async () => {
+        try {
+            await ApiService.RequestBorrowService.deleteRequest(selectedRequest.request_id);
+            toast.success("Request deleted successfully.");
+            setData((prev) => prev.filter((r) => r.request_id !== selectedRequest.request_id));
+        } catch (error) {
+            console.error("Delete error:", error);
+            toast.error("Failed to delete request.");
+        } finally {
+            setDeleteDialogOpen(false);
+        }
+    };
+
+    const columns = getRequestColumns({
+        onViewRequest: () => {
+            // Optional view logic
+        },
+        onEditRequest: openEditDialog,
+        onDeleteRequest: openDeleteDialog,
+    });
 
     useEffect(() => {
         if (!userId) return;
         fetchRequests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [userId]);
 
     return (
         <>
-            <Toaster richColors position="top-center" expand={true} />
+            <Toaster richColors position="top-center" expand />
             <Header headerTitle="Your Requests" />
-            <div className="p-4 space-y-4">
-                <div className="w-full flex justify-between items-center gap-2">
-                    <FilterBar filters={filters} setFilters={setFilters} requests={requests} setFiltered={setFiltered} />
-                    <Button onClick={() => {fetchRequests()}}>Refresh</Button>
-                </div>
-                <RequestsTable data={filtered} setData={setFiltered} refresh={fetchRequests}/>
-                {/* <Pagination pagination={pagination} setPagination={setPagination} total={filtered.length} /> */}
-            </div>
+
+            <DataTable data={data} columns={columns} />
+
+            <EditRequestDialog
+                isOpen={editDialogOpen}
+                onClose={() => setEditDialogOpen(false)}
+                request={selectedRequest}
+                onSubmit={handleEditRequestSubmit}
+            />
+
+            <DeleteRequestDialog
+                isOpen={deleteDialogOpen}
+                onClose={() => setDeleteDialogOpen(false)}
+                request={selectedRequest}
+                onDelete={handleDeleteRequest}
+            />
         </>
     );
 };

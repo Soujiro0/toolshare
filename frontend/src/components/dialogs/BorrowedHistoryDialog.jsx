@@ -36,7 +36,7 @@ const BorrowedHistoryDialog = ({ isOpen, onClose, selectedItem }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent width="max-w-7xl">
+            <DialogContent width="w-[80%] min-w-[80%] max-w-[700px]">
                 <DialogHeader>
                     <DialogTitle>Borrowed History</DialogTitle>
                 </DialogHeader>

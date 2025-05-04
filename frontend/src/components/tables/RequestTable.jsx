@@ -3,8 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import PropTypes from "prop-types";
 import { useState } from "react";
-import DeleteRequestDialog from "../dialogs/DeleteRequestDialog";
-import EditRequestDialog from "../dialogs/EditRequestDialog";
+import DeleteRequestDialog from "../dialogs/BorrowingManagement/DeleteRequestDialog";
+import EditRequestDialog from "../dialogs/BorrowingManagement/EditRequestDialog";
 
 const RequestsTable = ({ data, setData, refresh }) => {
     const [editData, setEditData] = useState(null);

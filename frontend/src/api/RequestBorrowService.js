@@ -18,7 +18,7 @@ export async function getAllRequests() {
 export async function getUserRequests(userId) {
     try {
         const params = new URLSearchParams({ user_id: userId });
-        const response = await fetch(`${API_BASE}/borrow-request.php?${params.toString()}`);
+        const response = await fetch(`${API_BASE}/borrow-requests/?${params.toString()}`);
 
         if (!response.ok) {
             throw new Error(data.message || "Fetching Failed");
@@ -33,7 +33,7 @@ export async function getUserRequests(userId) {
 
 export async function createRequest(requestsData) {
     try {
-        const response = await fetch(`${API_BASE}/borrow-request.php`, {
+        const response = await fetch(`${API_BASE}/borrow-requests`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export async function createRequest(requestsData) {
 
 export async function updateRequestFaculty(requestId, updatedData) {
     try {
-        const response = await fetch(`${API_BASE}/borrow-request.php/faculty/${requestId}`, {
+        const response = await fetch(`${API_BASE}/borrow-requests-details/${requestId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -88,7 +88,7 @@ export async function approveRequestByAdmin(requestId, updatedData) {
 
 export async function deleteRequest(requestId) {
     try {
-        const response = await fetch(`${API_BASE}/borrow-request.php/${requestId}`, {
+        const response = await fetch(`${API_BASE}/borrow-requests/${requestId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",

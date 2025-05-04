@@ -11,7 +11,7 @@ class BorrowRequestSummaryResource extends JsonResource
         return [
             'request_summary_id' => $this->request_summary_id,
             'request_id' => $this->request_id,
-            'item_id' => $this->item_id,
+            'item' => new ItemResource($this->item),
             'quantity' => $this->quantity,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

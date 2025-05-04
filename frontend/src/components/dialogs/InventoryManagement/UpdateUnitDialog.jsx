@@ -49,7 +49,7 @@ const UpdateUnitDialog = ({ isOpen, onClose, unit, onSave }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
+            <DialogContent width="w-[50%] min-w-[50%] max-w-[80%]">
                 <DialogHeader>
                     <DialogTitle>Update Unit</DialogTitle>
                 </DialogHeader>

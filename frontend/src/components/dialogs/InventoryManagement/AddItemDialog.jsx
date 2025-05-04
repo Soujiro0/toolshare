@@ -77,7 +77,7 @@ const AddItemDialog = ({ isOpen, onClose, onSave, categories }) => {
                 });
             }}
         >
-            <DialogContent width="max-w-7xl">
+            <DialogContent width="w-[90%]">
                 <DialogHeader>
                     <DialogTitle>Add New Item</DialogTitle>
                 </DialogHeader>
