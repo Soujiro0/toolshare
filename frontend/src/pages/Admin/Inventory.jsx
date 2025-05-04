@@ -26,14 +26,6 @@ const Inventory = () => {
     const [updateUnitDialogOpen, setUpdateUnitDialogOpen] = useState(false);
     const [deleteUnitDialogOpen, setDeleteUnitDialogOpen] = useState(false);
     const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-    const filters = [
-        {
-            label: "Category",
-            key: "category.category_name",
-            values: categories.map((cat) => cat.category_name),
-            type: "select",
-        },
-    ];
 
     const handleViewDetails = (item) => {
         if (item) {
@@ -169,6 +161,15 @@ const Inventory = () => {
             refreshInventory(handleCloseDetail);
         }
     };
+
+    const filters = [
+        {
+            label: "Category",
+            key: "category.category_name",
+            values: categories.map((cat) => cat.category_name),
+            type: "select",
+        },
+    ];
 
     const columns = getColumns({
         onViewDetails: handleViewDetails,

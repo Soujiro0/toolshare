@@ -12,6 +12,10 @@ export const getUnitColumns = (handlers = {}, excludeKeys = []) =>
             accessorKey: "brand",
             header: "Brand",
             sortable: true,
+            cell: ({ getValue }) => {
+                const value = getValue();
+                return value === "" || value == null ? value : <span className="text-gray-400 italic">N/A</span>;
+            },
         },
         {
             accessorKey: "model",
@@ -64,8 +68,8 @@ export const getUnitColumns = (handlers = {}, excludeKeys = []) =>
                                     handlers.onUpdateUnit(unit);
                                 }}
                             >
-                                <FilePenLine />
                                 <span>Edit</span>
+                                <FilePenLine />
                             </Button>
                         )}
                         {handlers.onDeleteUnit && (

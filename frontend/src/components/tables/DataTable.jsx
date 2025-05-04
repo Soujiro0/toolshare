@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, LoaderCircle } from "lucide-react";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -161,11 +161,16 @@ export default function DataTable({
                                                                     <SelectItem key="all" value="All">
                                                                         All
                                                                     </SelectItem>
-                                                                    {filter.values.map((option) => (
-                                                                        <SelectItem key={option} value={option}>
-                                                                            {option}
-                                                                        </SelectItem>
-                                                                    ))}
+                                                                    {filter.values.map((option) => {
+                                                                        const label =
+                                                                            typeof option === "string" ? option.replace(/_/g, " ") : option.label;
+                                                                        const value = typeof option === "string" ? option : option.value;
+                                                                        return (
+                                                                            <SelectItem key={value} value={value}>
+                                                                                {label}
+                                                                            </SelectItem>
+                                                                        );
+                                                                    })}
                                                                 </SelectContent>
                                                             </Select>
                                                         </div>
@@ -243,7 +248,10 @@ export default function DataTable({
                     {isLoading ? (
                         <TableRow>
                             <TableCell colSpan={columns.length} className="text-center py-4 font-bold">
-                                Loading... Please wait
+                                <span className="flex items-center justify-center gap-2">
+                                    <LoaderCircle className="animate-spin" />
+                                    Loading... Please wait
+                                </span>
                             </TableCell>
                         </TableRow>
                     ) : (

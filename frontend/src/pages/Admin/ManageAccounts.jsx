@@ -4,26 +4,28 @@ import DeleteUserDialog from "@/components/dialogs/UserManagement/DeleteUserDial
 import EditUserDialog from "@/components/dialogs/UserManagement/EditUserDialog";
 import UserDetailDialog from "@/components/dialogs/UserManagement/UserDetailDialog";
 import Header from "@/components/layout/Header";
-import columns from "@/components/tables/UserManagement/UserColumn";
-import UserDataTable from "@/components/tables/UserManagement/UserDataTable";
+import DataTable from "@/components/tables/DataTable";
+import { getUserColumns } from "@/components/tables/UserManagement/UserColumn";
+import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const ROLES = [
     {
         role_id: 1,
-        role_name: 'SUPER_ADMIN',
+        role_name: "SUPER_ADMIN",
     },
     {
         role_id: 2,
-        role_name: 'ADMIN',
+        role_name: "ADMIN",
     },
     {
         role_id: 3,
-        role_name: 'INSTRUCTOR',
-    }
-]
+        role_name: "INSTRUCTOR",
+    },
+];
 
 const ManageAccounts = () => {
     const [users, setUsers] = useState([]);
@@ -121,6 +123,22 @@ const ManageAccounts = () => {
         }
     };
 
+    const filters = [
+        {
+            label: "User Role",
+            key: "role.role_name",
+            type: "select",
+            values: ROLES.map((e) => ({
+                label: e.role_name.replace(/_/g, " "), // e.g., "SUPER ADMIN"
+                value: e.role_name, // e.g., "SUPER_ADMIN"
+            })),
+        },
+    ];
+
+    const columns = getUserColumns({
+        onViewUserDetails: handleViewUserDetails,
+    });
+
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -129,7 +147,15 @@ const ManageAccounts = () => {
         <>
             <Toaster richColors position="top-center" expand={true} />
             <Header headerTitle="Manage Accounts" />
-            <UserDataTable columns={columns} data={users} onViewUserDetails={handleViewUserDetails} openAddUser={setAddUserDialogOpen} loading={loading} />
+
+            <div className="flex items-center justify-end mb-4">
+                <Button className="ml-auto" onClick={() => setAddUserDialogOpen(true)}>
+                    <Plus /> Add New User
+                </Button>
+            </div>
+
+            <DataTable columns={columns} data={users} searchKeys={["name"]} filters={filters} isLoading={loading} />
+
             <UserDetailDialog
                 isOpen={userDetailDialogOpen}
                 onClose={handleCloseUserDetail}
@@ -138,9 +164,21 @@ const ManageAccounts = () => {
                 onDelete={handleDeleteUser}
             />
 
-            <AddUserDialog isOpen={addUserDialogOpen} onClose={() => setAddUserDialogOpen(false)} onSave={handleAddUserCall} roles={ROLES}/>
-            <EditUserDialog isOpen={editUserDialogOpen} onClose={() => setEditUserDialogOpen(false)} user={selectedUser} onSave={handleEditUserCall} roles={ROLES}/>
-            <DeleteUserDialog isOpen={deleteUserDialogOpen} onClose={() => setDeleteUserDialogOpen(false)} user={selectedUser} onDelete={handleDeleteUserCall}/>
+            <AddUserDialog isOpen={addUserDialogOpen} onClose={() => setAddUserDialogOpen(false)} onSave={handleAddUserCall} roles={ROLES} />
+            
+            <EditUserDialog
+                isOpen={editUserDialogOpen}
+                onClose={() => setEditUserDialogOpen(false)}
+                user={selectedUser}
+                onSave={handleEditUserCall}
+                roles={ROLES}
+            />
+            <DeleteUserDialog
+                isOpen={deleteUserDialogOpen}
+                onClose={() => setDeleteUserDialogOpen(false)}
+                user={selectedUser}
+                onDelete={handleDeleteUserCall}
+            />
         </>
     );
 };

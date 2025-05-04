@@ -41,7 +41,7 @@ const EditItemDialog = ({ isOpen, onClose, item, onSave, categories }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
+            <DialogContent width="w-[50%] min-w-[50%] max-w-[80%]">
                 <DialogHeader>
                     <DialogTitle>Edit Item Details</DialogTitle>
                 </DialogHeader>

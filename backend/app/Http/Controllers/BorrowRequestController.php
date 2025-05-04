@@ -44,7 +44,7 @@ class BorrowRequestController extends Controller
             'remarks' => 'nullable|string',
             'authorized_student' => 'nullable|array',
             'authorized_student.*.name' => 'required|string|max:100',
-            'authorized_student.*.student_id' => 'required|string|max:50|unique:tbl_borrow_request_students,student_id',
+            'authorized_student.*.student_id' => 'required|string|max:50',
             'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|exists:tbl_items,item_id',
             'items.*.quantity' => 'required|integer|min:1',

@@ -1,5 +1,5 @@
 import DataTable from "@/components/tables/DataTable";
-import getUnitColumns from "@/components/tables/InventoryManagement/ItemDetailColumn";
+import getUnitColumns from "@/components/tables/InventoryManagement/ItemUnitColumn";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import PropTypes from "prop-types";
@@ -37,7 +37,7 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent width="max-w-fit md:max-w-7xl">
+                <DialogContent width="w-[90%] min-w-[90%] max-w-[700px]">
                     <DialogHeader>
                         <DialogTitle>Item Details</DialogTitle>
                     </DialogHeader>
