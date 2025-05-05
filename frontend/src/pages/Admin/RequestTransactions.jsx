@@ -1,28 +1,46 @@
 import ApiService from "@/api/ApiService";
+// import AssignUnitsDialog from "@/components/dialogs/AssignUnitsDialog";
+// import ReturnCheckDialog from "@/components/dialogs/ReturnCheckDialog";
+import ViewRequestDetails from "@/components/dialogs/BorrowingManagement/ViewRequestDetails";
 import Header from "@/components/layout/Header";
-import RequestTableAdmin from "@/components/tables/RequestTableAdmin";
+import DataTable from "@/components/tables/DataTable";
+import { getRequestTransactionColumns } from "@/components/tables/RequestTransactionManagement/RequestTransactionColumn";
 import { AuthContext } from "@/context/AuthContext";
 import { useContext, useEffect, useState } from "react";
 import { Toaster } from "sonner";
 
 const RequestTransaction = () => {
     const { auth } = useContext(AuthContext);
-    const user = auth.user?.user_id;
+    const userId = auth.user?.user_id;
     const [requests, setRequests] = useState([]);
+    // const [selectedRequest, setSelectedRequest] = useState(null);
+    // const [openAssign, setOpenAssign] = useState(false);
+    // const [openReturn, setOpenReturn] = useState(false);
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [isViewOpen, setIsViewOpen] = useState(false);
+
+    const handleViewRequest = (request) => {
+        setSelectedRequest(request);
+        setIsViewOpen(true);
+    };
 
     const fetchRequests = async () => {
         try {
             const data = await ApiService.RequestBorrowService.getAllRequests();
             setRequests(data.data);
+            console.log(userId);
         } catch (error) {
             console.error("Error fetching requests:", error);
         }
-    }
+    };
+
+    const columns = getRequestTransactionColumns({
+        onViewRequest: handleViewRequest,
+    });
 
     useEffect(() => {
         fetchRequests();
-        console.log(user);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -30,8 +48,31 @@ const RequestTransaction = () => {
             <Toaster richColors position="top-center" expand={true} />
             <Header headerTitle="Request Transactions" />
             <div className="p-4">
-                <RequestTableAdmin data={requests} refresh={fetchRequests}/>
+                <DataTable columns={columns} data={requests} />
             </div>
+
+            <ViewRequestDetails
+    isOpen={isViewOpen}
+    onClose={() => setIsViewOpen(false)}
+    request={selectedRequest}
+    onSubmit={() => {
+        setIsViewOpen(false);
+        fetchRequests(); // refresh data
+    }}
+/>
+
+
+            {/* <AssignUnitsDialog
+                open={openAssign}
+                onClose={() => setOpenAssign(false)}
+                request={selectedRequest}
+                refresh={fetchRequests}
+            />
+            <ReturnCheckDialog
+                open={openReturn}
+                onClose={() => setOpenReturn(false)}
+                request={selectedRequest}
+            /> */}
         </>
     );
 };

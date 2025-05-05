@@ -13,7 +13,7 @@ class BorrowRequestResource extends JsonResource
 
         return [
             'request_id' => $this->request_id,
-            'user_id' => $this->user_id,
+            'user' => new UserResource($this->whenLoaded('user')),
             'status' => $this->status,
             'purpose' => $this->purpose,
             'remarks' => $this->remarks,
