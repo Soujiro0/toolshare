@@ -2,7 +2,7 @@ import { API_BASE } from './config';
 
 export async function getAllRequests() {
     try {
-        const response = await fetch(`${API_BASE}/borrow-request.php`);
+        const response = await fetch(`${API_BASE}/borrow-requests`);
 
         if (!response.ok) {
             throw new Error(data.message || "Fetching Failed");

@@ -87,6 +87,8 @@ const ReturnCheckDialog = ({ open, onClose, request }) => {
         onClose();
     };
 
+    if (!request) return null;
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent width="max-w-7xl">

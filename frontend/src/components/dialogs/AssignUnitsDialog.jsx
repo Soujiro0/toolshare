@@ -101,6 +101,8 @@ const AssignUnitsDialog = ({ open, onClose, request, refresh }) => {
         }
     };
 
+    if (!request) return null;
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent width="max-w-4xl">
