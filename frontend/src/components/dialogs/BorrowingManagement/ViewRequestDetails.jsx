@@ -7,10 +7,14 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
 import { Textarea } from "@/components/ui/textarea";
+import { AuthContext } from "@/context/AuthContext";
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus }) => {
+    const { auth } = useContext(AuthContext);
+    const userRole = auth.user?.role;
+
     const [showAssignModal, setShowAssignModal] = useState(false);
 
     if (!request) return null;
@@ -59,7 +63,9 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus }) => {
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Requested By</CardTitle>
-                                    <p>{request.user?.name} ({request.user?.email})</p>
+                                    <p>
+                                        {request.user?.name} ({request.user?.email})
+                                    </p>
                                 </CardHeader>
                             </Card>
                         </div>
@@ -99,15 +105,27 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus }) => {
                     </div>
 
                     <DialogFooter className="flex gap-2">
-                        {request.status === "PENDING" && (
+                        {userRole === "INSTRUCTOR" && (
                             <>
-                                <Button onClick={() => handleStatusUpdate("APPROVED")}>APPROVE</Button>
-                                <Button variant="destructive" onClick={() => handleStatusUpdate("REJECTED")}>REJECT</Button>
+                                <Button>
+                                    Generate QR Code
+                                </Button>
                             </>
                         )}
 
-                        {request.status === "APPROVED" && (
-                            <Button onClick={() => setShowAssignModal(true)}>ASSIGN ITEMS</Button>
+                        {userRole === "SUPER_ADMIN" || userRole === "ADMIN" && (
+                            <>
+                                                        {request.status === "PENDING" && (
+                            <>
+                                <Button onClick={() => handleStatusUpdate("APPROVED")}>APPROVE</Button>
+                                <Button variant="destructive" onClick={() => handleStatusUpdate("REJECTED")}>
+                                    REJECT
+                                </Button>
+                            </>
+                        )}
+
+                        {request.status === "APPROVED" && <Button onClick={() => setShowAssignModal(true)}>ASSIGN ITEMS</Button>}
+                            </>
                         )}
                     </DialogFooter>
 
@@ -119,9 +137,7 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus }) => {
                                     <DialogTitle>Assign Items</DialogTitle>
                                 </DialogHeader>
                                 {/* Your custom assign-item form goes here */}
-                                <p className="text-sm text-muted-foreground">
-                                    Assign actual item units here...
-                                </p>
+                                <p className="text-sm text-muted-foreground">Assign actual item units here...</p>
                                 <DialogFooter>
                                     <Button onClick={() => setShowAssignModal(false)}>Close</Button>
                                 </DialogFooter>

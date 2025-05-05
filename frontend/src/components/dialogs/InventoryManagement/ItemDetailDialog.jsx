@@ -2,6 +2,7 @@ import DataTable from "@/components/tables/DataTable";
 import getUnitColumns from "@/components/tables/InventoryManagement/ItemUnitColumn";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { exportUnitsToExcel } from "@/lib/utils"; // update path if needed
 import PropTypes from "prop-types";
 import { useState } from "react";
 import BorrowedHistoryDialog from "../BorrowedHistoryDialog";
@@ -31,7 +32,7 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
     const columns = getUnitColumns({
         onUpdateUnit: onUpdateUnit,
         onDeleteUnit: onDeleteUnit,
-        onViewHistory: handleRowClick
+        onViewHistory: handleRowClick,
     });
 
     return (
@@ -41,6 +42,12 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
                     <DialogHeader>
                         <DialogTitle>Item Details</DialogTitle>
                     </DialogHeader>
+                    <Button
+                        className="mb-4"
+                        onClick={() => exportUnitsToExcel(item.item_units)} // `units` = your data
+                    >
+                        Export to Excel with QR
+                    </Button>
 
                     {/* Metadata */}
                     <div className="mb-4 flex flex-col gap-2">
@@ -78,8 +85,16 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
                         </h1>
                         <h2 className="mb-2 font-bold">Units</h2>
 
-                        <DataTable columns={columns} data={item.item_units} searchKeys={[]} filters={[]} isLoading={false} entrySize={5} showEntries={false} showSearchFilter={false}/>
-                    
+                        <DataTable
+                            columns={columns}
+                            data={item.item_units}
+                            searchKeys={[]}
+                            filters={[]}
+                            isLoading={false}
+                            entrySize={5}
+                            showEntries={false}
+                            showSearchFilter={false}
+                        />
                     </div>
                 </DialogContent>
             </Dialog>

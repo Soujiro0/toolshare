@@ -10,7 +10,7 @@ export const getRequestColumns = (handlers = {}, excludeKeys = []) =>
             sortable: true,
         },
         {
-            accessorKey: "user_id",
+            accessorKey: "user.user_id",
             header: "User ID",
             sortable: true,
         },

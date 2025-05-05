@@ -13,12 +13,19 @@ class ItemUnitController extends Controller
      */
     public function index()
     {
-        $itemUnits = ItemUnitModel::with('item')->get();
-        return response()->json([
-            'message' => 'Item units retrieved successfully.',
-            'total' => $itemUnits->count(),
-            'data' => ItemUnitResource::collection($itemUnits)
-        ], 200);
+        try {
+            $itemUnits = ItemUnitModel::with('item')->get();
+            return response()->json([
+                'message' => 'Item units retrieved successfully.',
+                'total' => $itemUnits->count(),
+                'data' => ItemUnitResource::collection($itemUnits)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error retrieving item units.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
