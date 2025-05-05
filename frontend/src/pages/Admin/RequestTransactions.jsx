@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 const RequestTransaction = () => {
     const { auth } = useContext(AuthContext);
     const userId = auth.user?.user_id;
+    const [loading, setLoading] = useState(false);
     const [requests, setRequests] = useState([]);
     // const [selectedRequest, setSelectedRequest] = useState(null);
     // const [openAssign, setOpenAssign] = useState(false);
@@ -25,12 +26,15 @@ const RequestTransaction = () => {
     };
 
     const fetchRequests = async () => {
+        setLoading(true);
         try {
             const data = await ApiService.RequestBorrowService.getAllRequests();
             setRequests(data.data);
             console.log(userId);
         } catch (error) {
             console.error("Error fetching requests:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -48,19 +52,18 @@ const RequestTransaction = () => {
             <Toaster richColors position="top-center" expand={true} />
             <Header headerTitle="Request Transactions" />
             <div className="p-4">
-                <DataTable columns={columns} data={requests} />
+                <DataTable columns={columns} data={requests} searchKeys={[]} isLoading={loading} />
             </div>
 
             <ViewRequestDetails
-    isOpen={isViewOpen}
-    onClose={() => setIsViewOpen(false)}
-    request={selectedRequest}
-    onSubmit={() => {
-        setIsViewOpen(false);
-        fetchRequests(); // refresh data
-    }}
-/>
-
+                isOpen={isViewOpen}
+                onClose={() => setIsViewOpen(false)}
+                request={selectedRequest}
+                onSubmit={() => {
+                    setIsViewOpen(false);
+                    fetchRequests(); // refresh data
+                }}
+            />
 
             {/* <AssignUnitsDialog
                 open={openAssign}

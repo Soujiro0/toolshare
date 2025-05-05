@@ -1,6 +1,7 @@
 import ApiService from "@/api/ApiService";
 import DeleteRequestDialog from "@/components/dialogs/BorrowingManagement/DeleteRequestDialog";
 import EditRequestDialog from "@/components/dialogs/BorrowingManagement/EditRequestDialog";
+import ViewRequestDetails from "@/components/dialogs/BorrowingManagement/ViewRequestDetails";
 import Header from "@/components/layout/Header";
 import { getRequestColumns } from "@/components/tables/BorrowingManagement/RequestColumn";
 import DataTable from "@/components/tables/DataTable";
@@ -13,18 +14,16 @@ const YourRequests = () => {
     const { auth } = useContext(AuthContext);
     const userId = auth.user?.user_id;
 
+    const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
+    const [isViewOpen, setIsViewOpen] = useState(false);
 
-    const fetchRequests = async () => {
-        try {
-            const res = await ApiService.RequestBorrowService.getUserRequests(userId);
-            setData(res.data);
-        } catch (error) {
-            console.error("Error fetching requests:", error);
-        }
+    const handleViewRequest = (request) => {
+        setSelectedRequest(request);
+        setIsViewOpen(true);
     };
 
     const openDeleteDialog = (request) => {
@@ -37,20 +36,32 @@ const YourRequests = () => {
         setEditDialogOpen(true);
     };
 
+    const fetchRequests = async () => {
+        setLoading(true);
+        try {
+            const res = await ApiService.RequestBorrowService.getUserRequests(userId);
+            setData(res.data);
+        } catch (error) {
+            console.error("Error fetching requests:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleEditRequestSubmit = async (payload) => {
         try {
             await ApiService.RequestBorrowService.updateRequestFaculty(selectedRequest.request_id, payload);
             toast.success("Request updated successfully", {
                 description: "Your request has been updated.",
             });
-    
+
             fetchRequests(); // Ensure DB state is fetched fresh
             setEditDialogOpen(false);
         } catch (error) {
             console.error("Error updating request:", error);
             toast.error("Error updating request");
         }
-    };    
+    };
 
     const handleDeleteRequest = async () => {
         try {
@@ -66,9 +77,7 @@ const YourRequests = () => {
     };
 
     const columns = getRequestColumns({
-        onViewRequest: () => {
-            // Optional view logic
-        },
+        onViewRequest: handleViewRequest,
         onEditRequest: openEditDialog,
         onDeleteRequest: openDeleteDialog,
     });
@@ -83,7 +92,17 @@ const YourRequests = () => {
             <Toaster richColors position="top-center" expand />
             <Header headerTitle="Your Requests" />
 
-            <DataTable data={data} columns={columns} />
+            <DataTable data={data} columns={columns} isLoading={loading} />
+
+            <ViewRequestDetails
+                isOpen={isViewOpen}
+                onClose={() => setIsViewOpen(false)}
+                request={selectedRequest}
+                onSubmit={() => {
+                    setIsViewOpen(false);
+                    fetchRequests(); // refresh data
+                }}
+            />
 
             <EditRequestDialog
                 isOpen={editDialogOpen}
