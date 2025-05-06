@@ -114,18 +114,34 @@ class BorrowRequestController extends Controller
      */
     public function updateRequestStatus(Request $request, string $id)
     {
+
+        // $table->enum('status', ['PENDING', 'APPROVED', 'REJECTED', 'CLAIMED', 'RETURNED'])->default('PENDING');
         $validated = $request->validate([
-            'status' => 'required|in:PENDING,APPROVED,REJECTED,CANCELLED',
+            'status' => 'required|in:PENDING,APPROVED,REJECTED,CLAIMED,RETURNED',
             'handled_by' => 'required|exists:tbl_users,user_id',
         ]);
 
         try {
             $borrowRequest = BorrowRequestModel::findOrFail($id);
 
-            $borrowRequest->update([
-                'status' => $validated['status'],
-                'handled_by' => $validated['handled_by'],
-            ]);
+            if (request('status') === 'APPROVED' || request('status') === 'REJECTED' || request('status') === 'CLAIMED') {
+                $borrowRequest->update([
+                    'status' => $validated['status'],
+                    'handled_by' => $validated['handled_by'],
+                    'processed_date' => now(),
+                ]);
+            } else if (request('status') === 'RETURNED') {
+                $borrowRequest->update([
+                    'status' => $validated['status'],
+                    'handled_by' => $validated['handled_by'],
+                    'processed_date' => now(),
+                    'return_date' => now(),
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Invalid status update.'
+                ], 400);
+            }
 
             return response()->json([
                 'message' => 'Borrow request status updated successfully.',

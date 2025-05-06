@@ -30,14 +30,14 @@ export const getRequestTransactionColumns = (handlers = {}, excludeKeys = []) =>
 
                 const badgeVariant =
                     {
-                        PENDING: "secondary",
-                        APPROVED: "success",
-                        REJECTED: "destructive",
-                        CLAIMED: "default",
-                        RETURNED: "outline",
+                        PENDING: "bg-yellow-400 text-black",
+                        APPROVED: "bg-emerald-500 text-white",
+                        REJECTED: "bg-rose-500 text-white",
+                        CLAIMED: "bg-blue-500 text-white",
+                        RETURNED: "bg-gray-300 text-black",
                     }[status] || "outline";
 
-                return <Badge variant={badgeVariant}>{status}</Badge>;
+                return <Badge className={badgeVariant}>{status}</Badge>;
             },
         },
         {

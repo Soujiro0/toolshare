@@ -10,10 +10,19 @@ use Illuminate\Support\Facades\DB;
 class BorrowRequestItemController extends Controller
 {
     // Display a listing of the assigned units
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $assignedUnits = BorrowRequestItemsModel::all();
+            $query = BorrowRequestItemsModel::with('unit.item');
+
+            // Filter by unit_id if provided
+            if ($request->filled('unit_id')) {
+                $query->whereHas('unit', function ($q) use ($request) {
+                    $q->where('unit_id', $request->unit_id); // use correct column here
+                });
+            }
+
+            $assignedUnits = $query->get();
 
             return response()->json([
                 'success' => true,
@@ -123,7 +132,9 @@ class BorrowRequestItemController extends Controller
     public function show($unit_id)
     {
         try {
-            $assignedUnit = BorrowRequestItemsModel::findOrFail($unit_id);
+            $assignedUnit = BorrowRequestItemsModel::with('unit')
+            ->where('unit_id', $unit_id)
+            ->firstOrFail();
 
             return response()->json([
                 'success' => true,

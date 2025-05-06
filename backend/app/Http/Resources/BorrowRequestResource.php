@@ -13,11 +13,11 @@ class BorrowRequestResource extends JsonResource
 
         return [
             'request_id' => $this->request_id,
-            'user' => new UserResource($this->whenLoaded('user')),
+            'user' => new UserResource($this->user),
             'status' => $this->status,
             'purpose' => $this->purpose,
             'remarks' => $this->remarks,
-            'authorized_students' => BorrowRequestStudentResource::collection($this->whenLoaded('authorizedStudents')),
+            'authorized_students' => BorrowRequestStudentResource::collection($this->authorizedStudents),
             'handled_by' => $this->handled_by,
             'request_date' => $this->request_date,
             'return_date' => $this->return_date,

@@ -68,9 +68,9 @@ export async function updateRequestFaculty(requestId, updatedData) {
     }
 }
 
-export async function approveRequestByAdmin(requestId, updatedData) {
+export async function statusUpdateRequestByAdmin(requestId, updatedData) {
     try {
-        const response = await fetch(`${API_BASE}/borrow-request.php/admin/${requestId}`, {
+        const response = await fetch(`${API_BASE}/borrow-requests-status/${requestId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

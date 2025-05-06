@@ -1,6 +1,9 @@
+import ApiService from "@/api/ApiService";
 import { getAuthorizedStudentColumns } from "@/components/tables/BorrowingManagement/AuthorizedStudentColumn";
 import { getRequestedItemColumns } from "@/components/tables/BorrowingManagement/RequestedItemColumn";
 import DataTable from "@/components/tables/DataTable";
+import { getUnitColumns } from "@/components/tables/InventoryManagement/ItemUnitColumn";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,25 +11,105 @@ import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { AuthContext } from "@/context/AuthContext";
+import { Loader2 } from "lucide-react";
 import PropTypes from "prop-types";
 import { useContext, useState } from "react";
+import { toast } from "sonner";
+import AssignUnitsDialog from "./AssignUnitsDialog";
 
-const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus }) => {
+const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmitting, refresh }) => {
     const { auth } = useContext(AuthContext);
     const userRole = auth.user?.role;
 
+    const [assignedItemsMap, setAssignedItemsMap] = useState({});
     const [showAssignModal, setShowAssignModal] = useState(false);
 
-    if (!request) return null;
-
-    const authorizedStudentsColumns = getAuthorizedStudentColumns({}, ["actions"]);
-    const requestItemsColumns = getRequestedItemColumns({}, ["actions"]);
+    const handleAssignUnits = (requestId, selectedUnits) => {
+        setAssignedItemsMap((prev) => ({
+            ...prev,
+            [requestId]: selectedUnits,
+        }));
+    };
 
     const handleStatusUpdate = (newStatus) => {
         if (onSubmitStatus && request.request_id) {
+            console.log( "Updating status to:", newStatus);
             onSubmitStatus(request.request_id, newStatus);
         }
+        console.log("SKIPPED")
     };
+
+    const handleAssignUnitsCall = async (requestId, selectedUnits) => {
+        try {
+            const payload = {
+                request_id: requestId,
+                assigned_units: selectedUnits.map((unit) => ({
+                    unit_id: unit.unit_id,
+                    item_condition_out: unit.item_condition_out || unit.item_condition || "GOOD", // fallback if needed
+                })),
+            };
+
+            const response = await ApiService.BorrowItemService.assignUnitToRequest(payload);
+            console.log("Units assigned successfully:", response);
+
+            if (!response.success) {
+                console.error("Failed to assign units succ:", response.message);
+                toast.error("Failed to assign units.");
+                return;
+            }
+            toast.success("Units assigned successfully.");
+
+            setAssignedItemsMap((prev) => ({
+                ...prev,
+                [requestId]: selectedUnits,
+            }));
+        } catch (error) {
+            console.error("Error Assigning Units:", error);
+            toast.error("Failed to assign units.");
+        } finally {
+            refresh();
+            onClose();
+        }
+    };
+
+    const hasAssignedItems = Array.isArray(request?.assigned_items) && request.assigned_items.length > 0;
+
+    const transformedAssignedItems = (assignedItems) => {
+        return assignedItems.map((item) => {
+            // Extract the unit details
+            const unit = item.unit || {};
+
+            return {
+                brand: unit.brand,
+                checked: true, // You can change this logic as needed
+                date_acquired: unit.date_acquired,
+                item: {
+                    item_id: unit.item_id,
+                    name: unit.item?.name,
+                    unit: unit.item?.unit,
+                    acquisition_date: unit.item?.acquisition_date,
+                    item_units_count: unit.item?.item_units_count,
+                    date_created: unit.item?.date_created,
+                    date_updated: unit.item?.date_updated,
+                },
+                item_condition: unit.item_condition,
+                item_id: unit.item_id,
+                model: unit.model,
+                property_no: unit.property_no,
+                specification: unit.specification,
+                status: unit.status,
+                unit_id: unit.unit_id,
+            };
+        });
+    };
+
+    const assignedItems = hasAssignedItems ? transformedAssignedItems(request.assigned_items) : assignedItemsMap[request?.request_id] || [];
+
+    const authorizedStudentsColumns = getAuthorizedStudentColumns({}, ["actions"]);
+    const requestItemsColumns = getRequestedItemColumns({}, ["actions"]);
+    const unitColumns = getUnitColumns({}, ["checkbox", "actions", "qr_code", "status", "item_condition"]);
+
+    if (!request) return null;
 
     return (
         <>
@@ -47,10 +130,20 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus }) => {
                             </Card>
 
                             <Card>
-                                <CardHeader>
-                                    <CardTitle>Status</CardTitle>
-                                    <p>{request.status}</p>
-                                </CardHeader>
+                            <CardHeader>
+  <CardTitle>Status</CardTitle>
+  <Badge className={
+    {
+      PENDING: "bg-yellow-400 text-black",
+      APPROVED: "bg-emerald-500 text-white",
+      REJECTED: "bg-rose-500 text-white",
+      CLAIMED: "bg-blue-500 text-white",
+      RETURNED: "bg-gray-300 text-black",
+    }[request.status] || "outline"
+  }>
+    {request.status}
+  </Badge>
+</CardHeader>
                             </Card>
 
                             <Card>
@@ -102,48 +195,70 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus }) => {
                                 showSearchFilter={false}
                             />
                         </div>
+
+                        {(request.status === "APPROVED" || request.status === "CLAIMED" || request.status === "RETURNED") && (
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Label>Assign Items:</Label>
+                                    <Button onClick={() => setShowAssignModal(true)}>Edit Assign Items</Button>
+                                </div>
+                                <DataTable columns={unitColumns} data={assignedItems || []} showEntries={false} showSearchFilter={false} />
+                            </div>
+                        )}
                     </div>
 
                     <DialogFooter className="flex gap-2">
                         {userRole === "INSTRUCTOR" && (
                             <>
-                                <Button>
-                                    Generate QR Code
-                                </Button>
+                                <Button>Generate QR Code</Button>
                             </>
                         )}
 
-                        {userRole === "SUPER_ADMIN" || userRole === "ADMIN" && (
+                        {(userRole === "SUPER_ADMIN" || userRole === "ADMIN") && (
                             <>
-                                                        {request.status === "PENDING" && (
-                            <>
-                                <Button onClick={() => handleStatusUpdate("APPROVED")}>APPROVE</Button>
-                                <Button variant="destructive" onClick={() => handleStatusUpdate("REJECTED")}>
-                                    REJECT
-                                </Button>
-                            </>
-                        )}
+                                {request.status === "PENDING" && (
+                                    <>
+                                        <Button onClick={() => handleStatusUpdate("APPROVED")}>
+                                            {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : "APPROVE"}
+                                        </Button>
+                                        <Button variant="destructive" onClick={() => handleStatusUpdate("REJECTED")}>
+                                        {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : "REJECT"}
+                                        </Button>
+                                    </>
+                                )}
+                                {request.status === "APPROVED" && request.assigned_items.length === 0 && (
+                                    <Button
+                                        disabled={!assignedItems.length > 0}
+                                        onClick={() => {
+                                            handleAssignUnitsCall(request.request_id, assignedItems);
+                                        }}
+                                    >
+                                        Confirmed Item Assign
+                                    </Button>
+                                )}
 
-                        {request.status === "APPROVED" && <Button onClick={() => setShowAssignModal(true)}>ASSIGN ITEMS</Button>}
+                                {request.status === "APPROVED" && request.assigned_items.length > 0 && (
+                                    <Button disabled={!assignedItems.length} onClick={() => handleStatusUpdate("CLAIMED")}>
+                                        CLAIMED
+                                    </Button>
+                                )}
+
+                                {request.status === "CLAIMED" && (
+                                    <Button disabled={!assignedItems.length} onClick={() => handleStatusUpdate("RETURNED")}>
+                                        RETURN
+                                    </Button>
+                                )}
                             </>
                         )}
                     </DialogFooter>
 
-                    {/* Assign Items Modal Placeholder */}
-                    {showAssignModal && (
-                        <Dialog open={showAssignModal} onOpenChange={setShowAssignModal}>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Assign Items</DialogTitle>
-                                </DialogHeader>
-                                {/* Your custom assign-item form goes here */}
-                                <p className="text-sm text-muted-foreground">Assign actual item units here...</p>
-                                <DialogFooter>
-                                    <Button onClick={() => setShowAssignModal(false)}>Close</Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                    )}
+                    <AssignUnitsDialog
+                        isOpen={showAssignModal}
+                        onClose={() => setShowAssignModal(false)}
+                        request={request}
+                        onSelect={(units) => handleAssignUnits(request.request_id, units)}
+                        preselectedUnits={assignedItems}
+                    />
                 </DialogContent>
             </Dialog>
         </>
@@ -162,8 +277,11 @@ ViewRequestDetails.propTypes = {
         user: PropTypes.object,
         requested_items: PropTypes.array,
         authorized_students: PropTypes.array,
+        assigned_items: PropTypes.array,
     }),
     onSubmitStatus: PropTypes.func.isRequired,
+    isSubmitting: PropTypes.bool,
+    refresh: PropTypes.func,
 };
 
 export default ViewRequestDetails;

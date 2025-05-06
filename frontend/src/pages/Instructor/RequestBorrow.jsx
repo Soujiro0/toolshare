@@ -96,7 +96,7 @@ const RequestBorrow = () => {
         onRemoveStudent: handleRemoveStudent,
     });
 
-    const selecttedItemColumns = getSelectedItemsColumns({
+    const selectedItemColumns = getSelectedItemsColumns({
         onRemove: handleRemoveItem,
     });
 
@@ -161,7 +161,7 @@ const RequestBorrow = () => {
                                 <Plus />
                             </Button>
                         </div>
-                        <DataTable data={selectedItems} columns={selecttedItemColumns} showEntries={false} showSearchFilter={false} />
+                        <DataTable data={selectedItems} columns={selectedItemColumns} showEntries={false} showSearchFilter={false} />
                     </div>
                 </CardContent>
 

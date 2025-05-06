@@ -25,13 +25,15 @@ export const AuthProvider = ({ children }) => {
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                console.log(decoded);
+                console.log("Decoded: ", decoded);
                 setAuth({ token, user: decoded });
             } catch (error) {
                 console.error('Token decode failed:', error);
                 localStorage.removeItem('token');
             }
         }
+
+        console.log("Auth: ", auth);
     }, []);
 
     // Login: Save the token and update auth state
