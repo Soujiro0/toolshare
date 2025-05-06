@@ -18,7 +18,10 @@ class ItemUnitResource extends JsonResource
             'item_condition' => $this->item_condition,
             'status' => $this->status,
             'date_acquired' => $this->date_acquired,
-            'item' => new ItemResource($this->whenLoaded('item')), // full nested object
+            // 'item' => new ItemResource($this->whenLoaded('item')), // full nested object
+            // 'item' => $this->item,
+            'item' => new ItemResource($this->item), // no whenLoaded
+
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\ItemUnitResource;
 
 class BorrowRequestItemResource extends JsonResource
 {
@@ -10,8 +11,10 @@ class BorrowRequestItemResource extends JsonResource
     {
         return [
             'request_item_id' => $this->request_item_id,
-            'request_id' => $this->request_id,
-            'unit_id' => $this->unit_id,
+            // 'request_id' => $this->request_id,
+            'request' => new BorrowRequestResource($this->request),
+            // 'unit' => new ItemUnitResource($this->whenLoaded('unit')),
+            'unit' => new ItemUnitResource($this->unit), // no whenLoaded
             'item_condition_out' => $this->item_condition_out,
             'item_condition_in' => $this->item_condition_in,
             'damage_status' => $this->damage_status,

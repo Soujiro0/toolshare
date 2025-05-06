@@ -2,10 +2,10 @@ import DataTable from "@/components/tables/DataTable";
 import getUnitColumns from "@/components/tables/InventoryManagement/ItemUnitColumn";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { exportUnitsToExcel } from "@/lib/utils"; // update path if needed
+// import { exportUnitsToExcel } from "@/lib/utils";
 import PropTypes from "prop-types";
 import { useState } from "react";
-import BorrowedHistoryDialog from "../BorrowedHistoryDialog";
+import BorrowedHistoryDialog from "./BorrowedHistoryDialog";
 
 export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUpdateUnit, onDeleteUnit }) => {
     const [selectedUnit, setSelectedUnit] = useState(null);
@@ -33,7 +33,7 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
         onUpdateUnit: onUpdateUnit,
         onDeleteUnit: onDeleteUnit,
         onViewHistory: handleRowClick,
-    });
+    }, ["checkbox"]);
 
     return (
         <>
@@ -42,12 +42,12 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
                     <DialogHeader>
                         <DialogTitle>Item Details</DialogTitle>
                     </DialogHeader>
-                    <Button
+                    {/* <Button
                         className="mb-4"
                         onClick={() => exportUnitsToExcel(item.item_units)} // `units` = your data
                     >
                         Export to Excel with QR
-                    </Button>
+                    </Button> */}
 
                     {/* Metadata */}
                     <div className="mb-4 flex flex-col gap-2">

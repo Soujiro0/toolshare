@@ -1,9 +1,9 @@
 import ApiService from "@/api/ApiService";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { AuthContext }  from "@/context/AuthContext";
+import { AuthContext } from "@/context/AuthContext";
 import { useContext, useState } from "react";
-import AssignUnitsDialog from "../dialogs/AssignUnitsDialog";
+import AssignUnitsDialog from "../dialogs/BorrowingManagement/AssignUnitsDialog";
 import ReturnCheckDialog from "../dialogs/ReturnCheckDialog";
 
 const RequestRow = ({ request, refresh }) => {

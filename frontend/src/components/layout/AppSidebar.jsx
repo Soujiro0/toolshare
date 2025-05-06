@@ -85,13 +85,13 @@ export function AppSidebar({ ...props }) {
             </SidebarContent>
             <SidebarFooter>
                 <SidebarMenuButton tooltip="logout">
-                    <button
+                    <a
                         onClick={openLogoutModal}
                         className="flex items-center gap-5 rounded w-full text-gray-700 hover:text-blue-600"
                     >
                         <FontAwesomeIcon icon={["fas", "sign-out-alt"]} />
                         <span>Log Out</span>
-                    </button>
+                    </a>
                     <LogoutDialog isOpen={isLogoutModalOpen} onClose={closeLogoutModal} onConfirm={confirmLogout} />
                 </SidebarMenuButton>
             </SidebarFooter>

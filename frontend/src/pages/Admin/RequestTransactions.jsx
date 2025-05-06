@@ -7,7 +7,7 @@ import DataTable from "@/components/tables/DataTable";
 import { getRequestTransactionColumns } from "@/components/tables/RequestTransactionManagement/RequestTransactionColumn";
 import { AuthContext } from "@/context/AuthContext";
 import { useContext, useEffect, useState } from "react";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 
 const RequestTransaction = () => {
     const { auth } = useContext(AuthContext);
@@ -19,6 +19,7 @@ const RequestTransaction = () => {
     // const [openReturn, setOpenReturn] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isViewOpen, setIsViewOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleViewRequest = (request) => {
         setSelectedRequest(request);
@@ -35,6 +36,28 @@ const RequestTransaction = () => {
             console.error("Error fetching requests:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleStatusUpdateCall = async (requestId, newStatus) => {
+
+        setIsSubmitting(true);
+        const payload = {
+            'handled_by': userId,
+            'status': newStatus,
+        }
+
+        try {
+            const data = await ApiService.RequestBorrowService.statusUpdateRequestByAdmin(requestId, payload);
+            console.log(data);
+            toast.success("Request status updated successfully");
+            fetchRequests();
+        } catch (error) {
+            toast.error("Error to update request status");
+            console.error("Error updating request status:", error);
+        } finally {
+            setIsSubmitting(false);
+            setIsViewOpen(false);
         }
     };
 
@@ -59,10 +82,9 @@ const RequestTransaction = () => {
                 isOpen={isViewOpen}
                 onClose={() => setIsViewOpen(false)}
                 request={selectedRequest}
-                onSubmit={() => {
-                    setIsViewOpen(false);
-                    fetchRequests(); // refresh data
-                }}
+                onSubmitStatus={handleStatusUpdateCall}
+                isSubmitting={isSubmitting}
+                refresh={fetchRequests}
             />
 
             {/* <AssignUnitsDialog

@@ -2,7 +2,7 @@ import { API_BASE } from "./config";
 
 export async function getItemHistory(unitId) {
     try {
-        const response = await fetch(`${API_BASE}/borrow-request-items.php/?unit_id=${unitId}`, {
+        const response = await fetch(`${API_BASE}/borrow-request-items/?unit_id=${unitId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -75,7 +75,7 @@ export async function deleteItemRequest(itemRequestId) {
 
 export async function assignUnitToRequest(assignData) {
     try {
-        const response = await fetch(`${API_BASE}/borrow-request-items.php`, {
+        const response = await fetch(`${API_BASE}/borrow-request-items`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
