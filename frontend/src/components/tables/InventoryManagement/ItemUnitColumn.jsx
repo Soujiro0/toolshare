@@ -14,13 +14,17 @@ export const getUnitColumns = (handlers = {}, excludeKeys = []) => [
         sortable: true,
         cell: ({ getValue }) => {
             const value = getValue();
-            return value === "" || value == null ? value : <span className="text-gray-400 italic">N/A</span>;
+            return value ? value : <span className="text-gray-400 italic">N/A</span>;
         },
     },
     {
         accessorKey: "model",
         header: "Model",
         sortable: true,
+        cell: ({ getValue }) => {
+            const value = getValue();
+            return value ? value : <span className="text-gray-400 italic">N/A</span>;
+        },
     },
     {
         accessorKey: "specification",
@@ -58,7 +62,7 @@ export const getUnitColumns = (handlers = {}, excludeKeys = []) => [
         },
     },
     {
-        id: "actions",
+        accessorKey: "actions",
         header: "Actions",
         sortable: false,
         cell: ({ row }) => {
