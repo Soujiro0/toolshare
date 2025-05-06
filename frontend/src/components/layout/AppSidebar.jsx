@@ -23,6 +23,11 @@ export function AppSidebar({ ...props }) {
             url: "/inventory",
         },
         {
+            title: "Unit QR Export",
+            icon: "file-export",
+            url: "/units-qr-export",
+        },
+        {
             title: "Request Transactions",
             icon: "clipboard",
             url: "/request-transactions",

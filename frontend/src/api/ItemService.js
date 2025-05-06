@@ -84,6 +84,22 @@ export async function deleteItem(itemId) {
     }
 }
 
+export async function getItemUnits() {
+    try {
+        const response = await fetch(`${API_BASE}/item-units`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching item units', error);
+        throw error;
+    }
+}
+
 export async function updateUnit(unitId, unitData) {
     try {
         const response = await fetch(`${API_BASE}/item-units/${unitId}`, {

@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import BorrowedHistory from "@/pages/Admin/BorrowedHistory";
+import ExportUnitsQr from "@/pages/Admin/ExportUnitsQr";
 import RequestTransaction from "@/pages/Admin/RequestTransactions";
 import RequestBorrow from "@/pages/Instructor/RequestBorrow";
 import YourRequests from "@/pages/Instructor/YourRequests";
@@ -43,6 +44,7 @@ const AppRoute = () => {
                 <Route path="/inventory" element={<Inventory />} />
                 <Route path="/history" element={<BorrowedHistory />} />
                 <Route path="/request-transactions" element={<RequestTransaction />} />
+                <Route path="/units-qr-export" element={<ExportUnitsQr />} />
             </Route>
 
             {/* Admin Routes (No Admin Accounts) */}
@@ -55,6 +57,7 @@ const AppRoute = () => {
             >
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/inventory" element={<Inventory />} />
+                <Route path="/units-qr-export" element={<ExportUnitsQr />} />
             </Route>
 
             {/* Faculty Routes */}
