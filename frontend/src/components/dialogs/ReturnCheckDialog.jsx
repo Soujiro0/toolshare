@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 
-const ReturnCheckDialog = ({ open, onClose, request }) => {
+const ReturnCheckDialog = ({ isOpen, onClose, request }) => {
     const [units, setUnits] = useState([]);
     const [returnedData, setReturnedData] = useState({});
 
@@ -23,11 +23,11 @@ const ReturnCheckDialog = ({ open, onClose, request }) => {
     };
 
     useEffect(() => {
-        if (open) {
+        if (isOpen) {
             fetchAssignedUnits();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
+    }, [isOpen]);
 
     const toggleCheckbox = (unit_id) => {
         setReturnedData((prev) => ({
@@ -90,7 +90,7 @@ const ReturnCheckDialog = ({ open, onClose, request }) => {
     if (!request) return null;
 
     return (
-        <Dialog open={open} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent width="max-w-7xl">
                 <DialogHeader>
                     <DialogTitle>Return Check for {request.requested_by}</DialogTitle>
