@@ -1,0 +1,54 @@
+/* qrscanner.css */
+
+#html5qr-code-full-region {
+    border-radius: 1rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    background-color: white;
+    max-width: 500px;
+    margin: auto;
+}
+
+#html5qr-code-full-region__dashboard_section_csr {
+    margin-bottom: 20px;
+}
+
+#html5qr-code-full-region__dashboard {
+    padding: 20px;
+}
+
+#html5qr-code-full-region img {
+    display: block;
+    margin: auto;
+}
+
+/* Style for <select> and <button> inside the scanner UI */
+#html5qr-code-full-region select,
+#html5qr-code-full-region button {
+    padding: 0.25rem 0.75rem;
+    /* Tailwind px-3 py-1 */
+    border-radius: 0.5rem;
+    /* rounded-lg */
+    font-size: 0.875rem;
+    /* text-sm */
+    background-color: #2563eb;
+    /* Tailwind blue-600 */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    margin-bottom: 10px;
+}
+
+#html5qr-code-full-region select:hover,
+#html5qr-code-full-region button:hover {
+    background-color: #1d4ed8;
+    /* Tailwind blue-700 */
+}
+
+/* Link styles */
+#html5qr-code-full-region a {
+    color: #2563eb;
+    /* Tailwind blue-600 */
+    text-decoration: underline;
+}

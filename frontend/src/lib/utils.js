@@ -52,7 +52,7 @@ export const exportUnitsToExcel = async (units) => {
     });
 
     // Generate QR code
-    const qrText = `${unit.property_no} ${unit.brand} ${unit.model}`;
+    const qrText = `${unit.unit_id}`;
     const qrBase64 = await toDataURL(qrText);
 
     const imageId = workbook.addImage({

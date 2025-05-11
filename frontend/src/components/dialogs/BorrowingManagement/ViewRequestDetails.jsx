@@ -17,6 +17,7 @@ import { useContext, useState } from "react";
 import { toast } from "sonner";
 import ReturnCheckDialog from "../ReturnCheckDialog";
 import AssignUnitsDialog from "./AssignUnitsDialog";
+import RequestQRCodeDialog from "./RequestQRCodeDialog";
 
 const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmitting, refresh }) => {
     const { auth } = useContext(AuthContext);
@@ -25,6 +26,8 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
     const [assignedItemsMap, setAssignedItemsMap] = useState({});
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showReturnDialog, setShowReturnDialog] = useState(false);
+
+    const [showQrCodeDialog, setShowQrCodeDialog] = useState(false);
 
     const handleAssignUnits = (requestId, selectedUnits) => {
         setAssignedItemsMap((prev) => ({
@@ -200,7 +203,7 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                             />
                         </div>
 
-                        {(request.status === "APPROVED" || request.status === "CLAIMED" || request.status === "RETURNED") && (
+                        {((request.status === "APPROVED" || request.status === "CLAIMED" || request.status === "RETURNED") && (userRole === "SUPER_ADMIN" || userRole === "ADMIN") ) && (
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <Label>Assign Items:</Label>
@@ -214,7 +217,7 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                     <DialogFooter className="flex gap-2">
                         {userRole === "INSTRUCTOR" && (
                             <>
-                                <Button>Generate QR Code</Button>
+                                <Button onClick={() => setShowQrCodeDialog(true)}>Generate QR Code</Button>
                             </>
                         )}
 
@@ -260,6 +263,8 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                             </>
                         )}
                     </DialogFooter>
+
+                    <RequestQRCodeDialog isOpen={showQrCodeDialog} onClose={() => setShowQrCodeDialog(false)} requestId={request.request_id}/>
 
                     <AssignUnitsDialog
                         isOpen={showAssignModal}
