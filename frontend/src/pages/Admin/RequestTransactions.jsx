@@ -2,9 +2,11 @@ import ApiService from "@/api/ApiService";
 // import AssignUnitsDialog from "@/components/dialogs/AssignUnitsDialog";
 // import ReturnCheckDialog from "@/components/dialogs/ReturnCheckDialog";
 import ViewRequestDetails from "@/components/dialogs/BorrowingManagement/ViewRequestDetails";
+import RequestScanner from "@/components/dialogs/RequestScanner";
 import Header from "@/components/layout/Header";
 import DataTable from "@/components/tables/DataTable";
 import { getRequestTransactionColumns } from "@/components/tables/RequestTransactionManagement/RequestTransactionColumn";
+import { Button } from "@/components/ui/button";
 import { AuthContext } from "@/context/AuthContext";
 import { useContext, useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
@@ -20,6 +22,8 @@ const RequestTransaction = () => {
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [isRequestScannerOpen, setIsRequestScannerOpen] = useState(false);
 
     const handleViewRequest = (request) => {
         setSelectedRequest(request);
@@ -40,12 +44,11 @@ const RequestTransaction = () => {
     };
 
     const handleStatusUpdateCall = async (requestId, newStatus) => {
-
         setIsSubmitting(true);
         const payload = {
-            'handled_by': userId,
-            'status': newStatus,
-        }
+            handled_by: userId,
+            status: newStatus,
+        };
 
         try {
             const data = await ApiService.RequestBorrowService.statusUpdateRequestByAdmin(requestId, payload);
@@ -74,9 +77,27 @@ const RequestTransaction = () => {
         <>
             <Toaster richColors position="top-center" expand={true} />
             <Header headerTitle="Request Transactions" />
+            <div className="w-full flex items-center justify-end px-4">
+                <Button onClick={() => setIsRequestScannerOpen(true)}>Scan a Request</Button>
+            </div>
             <div className="p-4">
                 <DataTable columns={columns} data={requests} searchKeys={[]} isLoading={loading} />
             </div>
+
+            <RequestScanner
+                isOpen={isRequestScannerOpen}
+                onClose={() => setIsRequestScannerOpen(false)}
+                onScanSuccess={(scannedRequestId) => {
+                    requests.forEach((request) => {
+                        if (request.request_id === Number(scannedRequestId)) {
+                            setSelectedRequest(request);
+                            return;
+                        }
+                    });
+                    setIsViewOpen(true);
+                    setIsRequestScannerOpen(false)
+                }}
+            />
 
             <ViewRequestDetails
                 isOpen={isViewOpen}

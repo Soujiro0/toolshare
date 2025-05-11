@@ -71,7 +71,7 @@ export const getUnitColumns = (handlers = {}, excludeKeys = []) =>
             sortable: false,
             cell: ({ row }) => {
                 const unit = row.original;
-                return <QRCodeSVG value={`${unit.property_no} ${unit.brand} ${unit.model}`} size={70} marginSize={1} level="L" />;
+                return <QRCodeSVG value={`${unit.unit_id}`} size={70} marginSize={1} level="L" />;
             },
         },
         {

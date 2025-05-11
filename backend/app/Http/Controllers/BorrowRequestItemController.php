@@ -22,6 +22,11 @@ class BorrowRequestItemController extends Controller
                 });
             }
 
+            // Filter by request_id if provided
+            if ($request->filled('request_id')) {
+                $query->where('request_id', $request->request_id);
+            }
+
             $assignedUnits = $query->get();
 
             return response()->json([
@@ -37,6 +42,7 @@ class BorrowRequestItemController extends Controller
             ], 400);
         }
     }
+
 
     // Store (assign units to a request)
     public function store(Request $request)
@@ -133,8 +139,8 @@ class BorrowRequestItemController extends Controller
     {
         try {
             $assignedUnit = BorrowRequestItemsModel::with('unit')
-            ->where('unit_id', $unit_id)
-            ->firstOrFail();
+                ->where('unit_id', $unit_id)
+                ->firstOrFail();
 
             return response()->json([
                 'success' => true,

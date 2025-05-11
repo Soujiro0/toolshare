@@ -15,7 +15,9 @@ import { Loader2 } from "lucide-react";
 import PropTypes from "prop-types";
 import { useContext, useState } from "react";
 import { toast } from "sonner";
+import ReturnCheckDialog from "../ReturnCheckDialog";
 import AssignUnitsDialog from "./AssignUnitsDialog";
+import RequestQRCodeDialog from "./RequestQRCodeDialog";
 
 const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmitting, refresh }) => {
     const { auth } = useContext(AuthContext);
@@ -23,6 +25,9 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
 
     const [assignedItemsMap, setAssignedItemsMap] = useState({});
     const [showAssignModal, setShowAssignModal] = useState(false);
+    const [showReturnDialog, setShowReturnDialog] = useState(false);
+
+    const [showQrCodeDialog, setShowQrCodeDialog] = useState(false);
 
     const handleAssignUnits = (requestId, selectedUnits) => {
         setAssignedItemsMap((prev) => ({
@@ -33,10 +38,10 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
 
     const handleStatusUpdate = (newStatus) => {
         if (onSubmitStatus && request.request_id) {
-            console.log( "Updating status to:", newStatus);
+            console.log("Updating status to:", newStatus);
             onSubmitStatus(request.request_id, newStatus);
         }
-        console.log("SKIPPED")
+        console.log("SKIPPED");
     };
 
     const handleAssignUnitsCall = async (requestId, selectedUnits) => {
@@ -130,20 +135,22 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                             </Card>
 
                             <Card>
-                            <CardHeader>
-  <CardTitle>Status</CardTitle>
-  <Badge className={
-    {
-      PENDING: "bg-yellow-400 text-black",
-      APPROVED: "bg-emerald-500 text-white",
-      REJECTED: "bg-rose-500 text-white",
-      CLAIMED: "bg-blue-500 text-white",
-      RETURNED: "bg-gray-300 text-black",
-    }[request.status] || "outline"
-  }>
-    {request.status}
-  </Badge>
-</CardHeader>
+                                <CardHeader>
+                                    <CardTitle>Status</CardTitle>
+                                    <Badge
+                                        className={
+                                            {
+                                                PENDING: "bg-yellow-400 text-black",
+                                                APPROVED: "bg-emerald-500 text-white",
+                                                REJECTED: "bg-rose-500 text-white",
+                                                CLAIMED: "bg-blue-500 text-white",
+                                                RETURNED: "bg-gray-300 text-black",
+                                            }[request.status] || "outline"
+                                        }
+                                    >
+                                        {request.status}
+                                    </Badge>
+                                </CardHeader>
                             </Card>
 
                             <Card>
@@ -196,7 +203,7 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                             />
                         </div>
 
-                        {(request.status === "APPROVED" || request.status === "CLAIMED" || request.status === "RETURNED") && (
+                        {((request.status === "APPROVED" || request.status === "CLAIMED" || request.status === "RETURNED") && (userRole === "SUPER_ADMIN" || userRole === "ADMIN") ) && (
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <Label>Assign Items:</Label>
@@ -210,7 +217,7 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                     <DialogFooter className="flex gap-2">
                         {userRole === "INSTRUCTOR" && (
                             <>
-                                <Button>Generate QR Code</Button>
+                                <Button onClick={() => setShowQrCodeDialog(true)}>Generate QR Code</Button>
                             </>
                         )}
 
@@ -222,7 +229,7 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                                             {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : "APPROVE"}
                                         </Button>
                                         <Button variant="destructive" onClick={() => handleStatusUpdate("REJECTED")}>
-                                        {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : "REJECT"}
+                                            {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : "REJECT"}
                                         </Button>
                                     </>
                                 )}
@@ -244,13 +251,20 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                                 )}
 
                                 {request.status === "CLAIMED" && (
-                                    <Button disabled={!assignedItems.length} onClick={() => handleStatusUpdate("RETURNED")}>
-                                        RETURN
-                                    </Button>
+                                    <>
+                                        <Button variant="secondary" onClick={() => setShowReturnDialog(true)} disabled={!assignedItems.length}>
+                                            Check Return Items
+                                        </Button>
+                                        <Button disabled={!assignedItems.length} onClick={() => handleStatusUpdate("RETURNED")}>
+                                            RETURN
+                                        </Button>
+                                    </>
                                 )}
                             </>
                         )}
                     </DialogFooter>
+
+                    <RequestQRCodeDialog isOpen={showQrCodeDialog} onClose={() => setShowQrCodeDialog(false)} requestId={request.request_id}/>
 
                     <AssignUnitsDialog
                         isOpen={showAssignModal}
@@ -259,6 +273,9 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                         onSelect={(units) => handleAssignUnits(request.request_id, units)}
                         preselectedUnits={assignedItems}
                     />
+
+                    <ReturnCheckDialog isOpen={showReturnDialog} onClose={() => setShowReturnDialog(false)} request={request} />
+                        
                 </DialogContent>
             </Dialog>
         </>

@@ -31,7 +31,7 @@ export const getRequestColumns = (handlers = {}, excludeKeys = []) =>
                         RETURNED: "bg-gray-300 text-black",
                     }[status] || "outline";
 
-                return <Badge variant={badgeVariant}>{status}</Badge>;
+                return <Badge className={badgeVariant}>{status}</Badge>;
             },
         },
         {
@@ -97,27 +97,19 @@ export const getRequestColumns = (handlers = {}, excludeKeys = []) =>
                 return (
                     <div className="flex gap-2">
                         {handlers.onViewRequest && (
-                            <Button
-                                onClick={() => handlers.onViewRequest(request)}
-                                variant="ghost"
-                            >
+                            <Button onClick={() => handlers.onViewRequest(request)} variant="ghost">
                                 View
                                 <Eye />
                             </Button>
                         )}
                         {handlers.onEditRequest && (
-                            <Button
-                                onClick={() => handlers.onEditRequest(request)}
-                            >
+                            <Button onClick={() => handlers.onEditRequest(request)}>
                                 Edit
                                 <FilePen />
                             </Button>
                         )}
                         {handlers.onDeleteRequest && (
-                            <Button
-                                onClick={() => handlers.onDeleteRequest(request)}
-                                variant="destructive"
-                            >
+                            <Button onClick={() => handlers.onDeleteRequest(request)} variant="destructive">
                                 Delete
                                 <Trash />
                             </Button>
