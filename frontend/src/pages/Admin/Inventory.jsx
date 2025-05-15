@@ -180,19 +180,31 @@ const Inventory = () => {
     }, []);
 
     return (
-        <>
+        <div className="px-1 sm:px-2 lg:px-2 py-2 sm:py-2 space-y-4 sm:space-y-2">
+
             <Toaster richColors position="top-center" expand={true} />
-            <img src="/public/computer.png" alt="" />
             <Header headerTitle="Inventory Management" />
 
-            <div className="flex items-center justify-end mb-4">
-                <Button className="ml-auto" onClick={() => setAddItemDialogOpen(true)}>
-                    <Plus />
+            <div className="flex flex-col justify-end sm:flex-row items-center gap-4 mb-4">
+                <Button 
+                    className="w-full sm:w-auto" 
+                    onClick={() => setAddItemDialogOpen(true)}
+                >
+                    <Plus className="h-4 w-4 mr-2" />
                     <span>Add New Item</span>
                 </Button>
             </div>
 
-            <DataTable columns={columns} data={inventory} searchKeys={["name"]} filters={filters} isLoading={loading} />
+            <div className="overflow-x-auto">
+                <DataTable 
+                    columns={columns} 
+                    data={inventory} 
+                    searchKeys={["name"]} 
+                    filters={filters} 
+                    isLoading={loading}
+                    className="w-full"
+                />
+            </div>
 
             <ItemDetailDialog
                 isOpen={detailDialogOpen}
@@ -239,7 +251,7 @@ const Inventory = () => {
                 onConfirm={handleDeleteUnitCall}
                 unit={selectedUnit}
             />
-        </>
+        </div>
     );
 };
 

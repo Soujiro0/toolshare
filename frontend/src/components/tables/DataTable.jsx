@@ -25,9 +25,8 @@ export default function DataTable({
     });
     const [searchQuery, setSearchQuery] = React.useState("");
     const [filterValues, setFilterValues] = React.useState({});
-    const [selectedFilterKey, setSelectedFilterKey] = React.useState(null); // Track the selected filter key
+    const [selectedFilterKey, setSelectedFilterKey] = React.useState(null);
 
-    // Function to filter data based on the search query and search keys
     const filteredData = React.useMemo(() => {
         let filtered = data;
 
@@ -40,7 +39,6 @@ export default function DataTable({
             );
         }
 
-        // Apply filters from `filterValues`
         if (Object.keys(filterValues).length > 0) {
             filtered = filtered.filter((row) => {
                 return Object.keys(filterValues).every((key) => {
@@ -58,7 +56,7 @@ export default function DataTable({
     }, [data, searchQuery, searchKeys, filterValues]);
 
     const table = useReactTable({
-        data: filteredData, // Use filtered data
+        data: filteredData,
         columns,
         state: {
             sorting,
@@ -79,7 +77,6 @@ export default function DataTable({
         });
     };
 
-    // Handle changes in filter values
     const handleFilterChange = (key, value) => {
         setFilterValues((prevFilters) => ({
             ...prevFilters,
@@ -88,26 +85,23 @@ export default function DataTable({
     };
 
     return (
-        <div className="rounded-xl border shadow-sm p-4">
+        <div className="rounded-xl border shadow-sm p-2 md:p-4">
             {showSearchFilter && (
-                <div className="flex items-center justify-between mb-4">
-                    {/* Search Input */}
-                    <div className="flex items-center gap-2">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-2 w-full md:w-auto">
                         <Input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search..."
                             icon={"magnifying-glass"}
-                            className="w-[300px]"
+                            className="w-full md:w-[300px]"
                         />
                     </div>
 
                     {filters.length > 0 && (
-                        <>
-                            {/* Filter Section */}
-                            <div className="flex items-center gap-2">
-                                {/* Column filter selection */}
-                                <Label className="text-xs">Filter By:</Label>
+                        <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
+                            <div className="flex items-center gap-2 w-full md:w-auto">
+                                <Label className="text-xs whitespace-nowrap">Filter By:</Label>
                                 <Select
                                     value={selectedFilterKey || "Select"}
                                     onValueChange={(value) => {
@@ -119,7 +113,7 @@ export default function DataTable({
                                         }
                                     }}
                                 >
-                                    <SelectTrigger className="w-[150px]">
+                                    <SelectTrigger className="w-full md:w-[150px]">
                                         <SelectValue placeholder="Select Filter" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -136,76 +130,75 @@ export default function DataTable({
                                         ))}
                                     </SelectContent>
                                 </Select>
-
-                                {/* Dynamic filter input based on the selected filter */}
-                                {selectedFilterKey && filters.length > 0 && (
-                                    <div className="flex items-center gap-2">
-                                        {filters
-                                            .filter((filter) => filter.key === selectedFilterKey)
-                                            .map((filter) => {
-                                                if (filter.type === "select") {
-                                                    return (
-                                                        <div key={filter.key} className="flex space-x-1">
-                                                            <Label className="text-xs">Value:</Label>
-                                                            <Select
-                                                                value={filterValues[filter.key] ?? "All"}
-                                                                onValueChange={(value) => handleFilterChange(filter.key, value)}
-                                                            >
-                                                                <SelectTrigger className="w-[150px]">
-                                                                    <SelectValue placeholder="Select Value" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem key="select" disabled value="Select">
-                                                                        Select Value
-                                                                    </SelectItem>
-                                                                    <SelectItem key="all" value="All">
-                                                                        All
-                                                                    </SelectItem>
-                                                                    {filter.values.map((option) => {
-                                                                        const label =
-                                                                            typeof option === "string" ? option.replace(/_/g, " ") : option.label;
-                                                                        const value = typeof option === "string" ? option : option.value;
-                                                                        return (
-                                                                            <SelectItem key={value} value={value}>
-                                                                                {label}
-                                                                            </SelectItem>
-                                                                        );
-                                                                    })}
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                    );
-                                                }
-
-                                                if (filter.type === "input") {
-                                                    return (
-                                                        <div key={filter.key} className="flex space-x-1">
-                                                            <Label className="text-xs">Value:</Label>
-                                                            <Input
-                                                                type="date"
-                                                                value={filterValues[filter.key] || ""}
-                                                                onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-                                                                className="w-[150px] text-sm"
-                                                            />
-                                                        </div>
-                                                    );
-                                                }
-
-                                                return null;
-                                            })}
-                                    </div>
-                                )}
                             </div>
-                        </>
+
+                            {selectedFilterKey && filters.length > 0 && (
+                                <div className="flex items-center gap-2 w-full md:w-auto">
+                                    {filters
+                                        .filter((filter) => filter.key === selectedFilterKey)
+                                        .map((filter) => {
+                                            if (filter.type === "select") {
+                                                return (
+                                                    <div key={filter.key} className="flex space-x-1">
+                                                        <Label className="text-xs">Value:</Label>
+                                                        <Select
+                                                            value={filterValues[filter.key] ?? "All"}
+                                                            onValueChange={(value) => handleFilterChange(filter.key, value)}
+                                                        >
+                                                            <SelectTrigger className="w-full md:w-[150px]">
+                                                                <SelectValue placeholder="Select Value" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem key="select" disabled value="Select">
+                                                                    Select Value
+                                                                </SelectItem>
+                                                                <SelectItem key="all" value="All">
+                                                                    All
+                                                                </SelectItem>
+                                                                {filter.values.map((option) => {
+                                                                    const label =
+                                                                        typeof option === "string" ? option.replace(/_/g, " ") : option.label;
+                                                                    const value = typeof option === "string" ? option : option.value;
+                                                                    return (
+                                                                        <SelectItem key={value} value={value}>
+                                                                            {label}
+                                                                        </SelectItem>
+                                                                    );
+                                                                })}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                );
+                                            }
+
+                                            if (filter.type === "input") {
+                                                return (
+                                                    <div key={filter.key} className="flex space-x-1">
+                                                        <Label className="text-xs">Value:</Label>
+                                                        <Input
+                                                            type="date"
+                                                            value={filterValues[filter.key] || ""}
+                                                            onChange={(e) => handleFilterChange(filter.key, e.target.value)}
+                                                            className="w-full md:w-[150px] text-sm"
+                                                        />
+                                                    </div>
+                                                );
+                                            }
+
+                                            return null;
+                                        })}
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
             )}
 
             {showEntries && (
                 <div className="flex items-center gap-2 mb-4">
-                    <span className="text-sm text-muted-foreground">Show</span>
+                    <span className="text-xs md:text-sm text-muted-foreground">Show</span>
                     <Select value={String(pagination.pageSize)} onValueChange={handlePageSizeChange}>
-                        <SelectTrigger className="w-[100px]">
+                        <SelectTrigger className="w-[70px] md:w-[100px]">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -216,69 +209,90 @@ export default function DataTable({
                             ))}
                         </SelectContent>
                     </Select>
-                    <span className="text-sm text-muted-foreground">entries</span>
+                    <span className="text-xs md:text-sm text-muted-foreground">entries</span>
                 </div>
             )}
 
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
-                                const isSorted = header.column.getIsSorted();
-                                const isSortable = header.column.columnDef.sortable;
-                                return (
-                                    <TableHead
-                                        key={header.id}
-                                        onClick={isSortable ? header.column.getToggleSortingHandler() : undefined}
-                                        className={`cursor-pointer select-none ${!isSortable ? "text-muted-foreground" : ""} bg-gray-200`}
-                                    >
-                                        <div className="flex items-center gap-1">
-                                            {flexRender(header.column.columnDef.header, header.getContext())}
-                                            {isSorted === "asc" && <ChevronUp className="h-4 w-4" />}
-                                            {isSorted === "desc" && <ChevronDown className="h-4 w-4" />}
-                                        </div>
-                                    </TableHead>
-                                );
-                            })}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {isLoading ? (
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className="text-center py-4 font-bold">
-                                <span className="flex items-center justify-center gap-2">
-                                    <LoaderCircle className="animate-spin" />
-                                    Loading... Please wait
-                                </span>
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow key={row.id}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                                ))}
+            <div className="overflow-x-auto -mx-2 md:mx-0">
+                <Table className="min-w-full table-auto">
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => {
+                                    const isSorted = header.column.getIsSorted();
+                                    const isSortable = header.column.columnDef.sortable;
+                                    return (
+                                        <TableHead
+                                            key={header.id}
+                                            onClick={isSortable ? header.column.getToggleSortingHandler() : undefined}
+                                            className={`cursor-pointer select-none ${
+                                                !isSortable ? "text-muted-foreground" : ""
+                                            } bg-gray-200 text-xs md:text-sm whitespace-nowrap px-2 py-2 md:px-4 md:py-3`}
+                                        >
+                                            <div className="flex items-center gap-1">
+                                                {flexRender(header.column.columnDef.header, header.getContext())}
+                                                {isSorted === "asc" && <ChevronUp className="h-3 w-3 md:h-4 md:w-4" />}
+                                                {isSorted === "desc" && <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />}
+                                            </div>
+                                        </TableHead>
+                                    );
+                                })}
                             </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="text-center py-4 font-bold">
+                                    <span className="flex items-center justify-center gap-2">
+                                        <LoaderCircle className="animate-spin" />
+                                        Loading... Please wait
+                                    </span>
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow key={row.id}>
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell 
+                                            key={cell.id} 
+                                            className="px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm"
+                                        >
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
 
-            <div className="flex items-center justify-between mt-4">
-                <div className="text-sm text-muted-foreground">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-4">
+                <div className="text-xs md:text-sm text-muted-foreground order-2 md:order-1">
                     {isLoading
                         ? "Loading..."
                         : table.getRowModel().rows.length > 0
                         ? `Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`
                         : "No data available"}
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage() || isLoading}>
+                <div className="flex gap-2 w-full md:w-auto order-1 md:order-2">
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 md:flex-none text-xs md:text-sm"
+                        onClick={() => table.previousPage()} 
+                        disabled={!table.getCanPreviousPage() || isLoading}
+                    >
                         Previous
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage() || isLoading}>
+                    <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex-1 md:flex-none text-xs md:text-sm"
+                        onClick={() => table.nextPage()} 
+                        disabled={!table.getCanNextPage() || isLoading}
+                    >
                         Next
                     </Button>
                 </div>

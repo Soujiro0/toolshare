@@ -4,7 +4,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../public/filter.png";
 import LogoutDialog from "../dialogs/LogoutDialog";
@@ -12,9 +12,22 @@ library.add(fas);
 
 export function AppSidebar({ ...props }) {
     const { logout, auth } = useContext(AuthContext);
-    
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     const baseAdminMenu = [
         {
@@ -72,30 +85,60 @@ export function AppSidebar({ ...props }) {
     };
 
     return (
-        <Sidebar collapsible="icon" {...props}>
-            <SidebarHeader className="">
-                <SidebarMenuButton tooltip="Logo" className="py-10 flex gap-3 justify-between">
-                    <img src={logo} alt="logo" height={50} width={50} />
-                    <span className="text-2xl font-bold">Toolshare</span>
+        <Sidebar 
+            collapsible="icon" 
+            collapsed={isMobile}
+            className="transition-all duration-300 ease-in-out"
+            {...props}
+        >
+            <SidebarHeader className="relative">
+                <SidebarMenuButton 
+                    tooltip="Logo" 
+                    className="py-4 md:py-10 flex gap-3 items-center justify-between px-4"
+                >
+                    <img 
+                        src={logo} 
+                        alt="logo" 
+                        className="h-8 w-8 md:h-12 md:w-12 object-contain" 
+                    />
+                    <span className="text-xl md:text-2xl font-bold hidden md:inline-block">
+                        Toolshare
+                    </span>
                 </SidebarMenuButton>
             </SidebarHeader>
-            <SidebarContent>
-                <hr className="mx-5" />
-                <NavMain items={menuItems} />
+            
+            <SidebarContent className="px-2 md:px-4">
+                <hr className="mx-2 md:mx-5 my-2" />
+                <NavMain 
+                    items={menuItems} 
+                    className="space-y-1" 
+                />
             </SidebarContent>
-            <SidebarFooter>
-                <SidebarMenuButton tooltip="logout">
+            
+            <SidebarFooter className="mt-auto">
+                <SidebarMenuButton 
+                    tooltip="logout"
+                    className="p-2 md:p-4"
+                >
                     <a
                         onClick={openLogoutModal}
-                        className="flex items-center gap-5 rounded w-full text-gray-700 hover:text-blue-600"
+                        className="flex items-center gap-3 md:gap-5 rounded w-full text-gray-700 hover:text-blue-600 px-2 py-2 transition-colors"
                     >
-                        <FontAwesomeIcon icon={["fas", "sign-out-alt"]} />
-                        <span>Log Out</span>
+                        <FontAwesomeIcon 
+                            icon={["fas", "sign-out-alt"]} 
+                            className="w-4 h-4 md:w-5 md:h-5"
+                        />
+                        <span className="hidden md:inline-block">Log Out</span>
                     </a>
-                    <LogoutDialog isOpen={isLogoutModalOpen} onClose={closeLogoutModal} onConfirm={confirmLogout} />
+                    <LogoutDialog 
+                        isOpen={isLogoutModalOpen} 
+                        onClose={closeLogoutModal} 
+                        onConfirm={confirmLogout} 
+                    />
                 </SidebarMenuButton>
             </SidebarFooter>
-            <SidebarRail />
+            
+            <SidebarRail className="hidden md:block" />
         </Sidebar>
     );
 }
