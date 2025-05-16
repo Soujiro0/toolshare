@@ -1,6 +1,4 @@
 import ApiService from "@/api/ApiService";
-// import AssignUnitsDialog from "@/components/dialogs/AssignUnitsDialog";
-// import ReturnCheckDialog from "@/components/dialogs/ReturnCheckDialog";
 import ViewRequestDetails from "@/components/dialogs/BorrowingManagement/ViewRequestDetails";
 import RequestScanner from "@/components/dialogs/RequestScanner";
 import Header from "@/components/layout/Header";
@@ -8,6 +6,7 @@ import DataTable from "@/components/tables/DataTable";
 import { getRequestTransactionColumns } from "@/components/tables/RequestTransactionManagement/RequestTransactionColumn";
 import { Button } from "@/components/ui/button";
 import { AuthContext } from "@/context/AuthContext";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useContext, useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 
@@ -16,9 +15,6 @@ const RequestTransaction = () => {
     const userId = auth.user?.user_id;
     const [loading, setLoading] = useState(false);
     const [requests, setRequests] = useState([]);
-    // const [selectedRequest, setSelectedRequest] = useState(null);
-    // const [openAssign, setOpenAssign] = useState(false);
-    // const [openReturn, setOpenReturn] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,63 +60,67 @@ const RequestTransaction = () => {
         }
     };
 
-    const columns = getRequestTransactionColumns({
+    const isMobile = useMediaQuery("(max-width: 768px)");
+
+    const columns = getRequestTransactionColumns(isMobile, {
         onViewRequest: handleViewRequest,
-    });
+    }, []);
 
     useEffect(() => {
         fetchRequests();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return (
-        <>
-            <Toaster richColors position="top-center" expand={true} />
-            <Header headerTitle="Request Transactions" />
-            <div className="w-full flex items-center justify-end px-4">
-                <Button onClick={() => setIsRequestScannerOpen(true)}>Scan a Request</Button>
-            </div>
-            <div className="p-4">
-                <DataTable columns={columns} data={requests} searchKeys={[]} isLoading={loading} />
-            </div>
+return (
+    <div className="px-1 sm:px-2 lg:px-2 py-2 sm:py-2 space-y-4 sm:space-y-2">
+        <Toaster richColors position="top-center" expand={true} />
+        <Header headerTitle="Request Transactions" />
+        
+        <div className="flex flex-col justify-end sm:flex-row items-center gap-4 mb-4">
+            <Button 
+                className="w-full sm:w-auto"
+                onClick={() => setIsRequestScannerOpen(true)}
+            >
+                <span>Scan a Request</span>
+            </Button>
+        </div>
 
-            <RequestScanner
-                isOpen={isRequestScannerOpen}
-                onClose={() => setIsRequestScannerOpen(false)}
-                onScanSuccess={(scannedRequestId) => {
-                    requests.forEach((request) => {
-                        if (request.request_id === Number(scannedRequestId)) {
-                            setSelectedRequest(request);
-                            return;
-                        }
-                    });
-                    setIsViewOpen(true);
-                    setIsRequestScannerOpen(false)
-                }}
+        <div className="overflow-x-auto">
+            <DataTable 
+                columns={columns} 
+                data={requests} 
+                searchKeys={[]} 
+                isLoading={loading}
+                className="w-full"
             />
+        </div>
 
-            <ViewRequestDetails
-                isOpen={isViewOpen}
-                onClose={() => setIsViewOpen(false)}
-                request={selectedRequest}
-                onSubmitStatus={handleStatusUpdateCall}
-                isSubmitting={isSubmitting}
-                refresh={fetchRequests}
-            />
+        <RequestScanner
+            isOpen={isRequestScannerOpen}
+            onClose={() => setIsRequestScannerOpen(false)}
+            onScanSuccess={(scannedRequestId) => {
+                requests.forEach((request) => {
+                    if (request.request_id === Number(scannedRequestId)) {
+                        setSelectedRequest(request);
+                        return;
+                    }
+                });
+                setIsViewOpen(true);
+                setIsRequestScannerOpen(false)
+            }}
+        />
 
-            {/* <AssignUnitsDialog
-                open={openAssign}
-                onClose={() => setOpenAssign(false)}
-                request={selectedRequest}
-                refresh={fetchRequests}
-            />
-            <ReturnCheckDialog
-                open={openReturn}
-                onClose={() => setOpenReturn(false)}
-                request={selectedRequest}
-            /> */}
-        </>
-    );
+        <ViewRequestDetails
+            isOpen={isViewOpen}
+            onClose={() => setIsViewOpen(false)}
+            request={selectedRequest}
+            onSubmitStatus={handleStatusUpdateCall}
+            isSubmitting={isSubmitting}
+            refresh={fetchRequests}
+            isMobile={isMobile}
+        />
+    </div>
+);
 };
 
 export default RequestTransaction;

@@ -3,15 +3,18 @@ import getUnitColumns from "@/components/tables/InventoryManagement/ItemUnitColu
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 // import { exportUnitsToExcel } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import BorrowedHistoryDialog from "./BorrowedHistoryDialog";
 
-export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUpdateUnit, onDeleteUnit }) => {
+export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUpdateUnit, onDeleteUnit, isMobile }) => {
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-    if (!item) return null;
+    if (!item) {
+        return null;
+    }
 
     const handleEdit = () => {
         console.log("Edit clicked for item:", item.item_id);
@@ -29,73 +32,78 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
         setIsHistoryOpen(true);
     };
 
-    const columns = getUnitColumns({
-        onUpdateUnit: onUpdateUnit,
-        onDeleteUnit: onDeleteUnit,
-        onViewHistory: handleRowClick,
-    }, ["checkbox"]);
+    const columns = getUnitColumns(
+        isMobile,
+        {
+            onUpdateUnit: onUpdateUnit,
+            onDeleteUnit: onDeleteUnit,
+            onViewHistory: handleRowClick,
+        },
+        ["checkbox"]
+    );
 
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent width="w-[90%] min-w-[90%] max-w-[700px]">
+                <DialogContent className="w-[95%] sm:w-[90%] h-[90vh] p-4 lg:p-6" width="">
                     <DialogHeader>
                         <DialogTitle>Item Details</DialogTitle>
                     </DialogHeader>
-                    {/* <Button
-                        className="mb-4"
-                        onClick={() => exportUnitsToExcel(item.item_units)} // `units` = your data
-                    >
-                        Export to Excel with QR
-                    </Button> */}
+                    <ScrollArea className="h-[calc(90vh-8rem)]">
+                        <div className="px-3">
+                            {/* Metadata */}
+                            <div className="mb-4 flex flex-col gap-2">
+                                <h1 className="text-sm sm:text-base">
+                                    <strong>Item ID:</strong> {item.item_id}
+                                </h1>
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                                    <h2 className="text-sm sm:text-base">
+                                        <strong>Item Name: </strong> {item.name}
+                                    </h2>
+                                    <div className="flex gap-2">
+                                        <Button variant="outline" onClick={handleEdit} className="flex-1 sm:flex-none">
+                                            Edit
+                                        </Button>
+                                        <Button variant="outline" onClick={handleDelete} className="flex-1 sm:flex-none text-red-500">
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </div>
+                                <h3 className="text-sm sm:text-base">
+                                    <strong>Category:</strong> {item.category.category_name}
+                                </h3>
+                                <h3 className="text-sm sm:text-base">
+                                    <strong>Unit:</strong> {item.unit}
+                                </h3>
+                                <h3 className="flex items-center gap-2 text-sm sm:text-base">
+                                    <strong>Acquired on:</strong> {item.acquisition_date || <p className="text-gray-400 italic">N/A</p>}
+                                </h3>
+                            </div>
 
-                    {/* Metadata */}
-                    <div className="mb-4 flex flex-col gap-2">
-                        <h1>
-                            <strong>Item ID:</strong> {item.item_id}
-                        </h1>
-                        <div className="flex justify-between items-center">
-                            <h2>
-                                <strong>Item Name: </strong> {item.name}
-                            </h2>
-                            <div className="flex space-x-4">
-                                <Button variant="outline" onClick={handleEdit}>
-                                    Edit
-                                </Button>
-                                <Button variant="outline" onClick={handleDelete} className="text-red-500">
-                                    Delete
-                                </Button>
+                            {/* Units Table */}
+                            <div className="mt-4">
+                                <h1 className="mb-2 text-sm sm:text-base">
+                                    <strong>Total Units:</strong> {item.item_units_count}
+                                </h1>
+                                <h2 className="mb-2 font-bold text-sm sm:text-base">Units</h2>
+
+                                <div className="overflow-x-auto -mx-6 sm:mx-0">
+                                    <div className="min-w-full px-6 sm:px-0">
+                                        <DataTable
+                                            columns={columns}
+                                            data={item.item_units}
+                                            searchKeys={[]}
+                                            filters={[]}
+                                            isLoading={false}
+                                            entrySize={5}
+                                            showEntries={false}
+                                            showSearchFilter={false}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <h3>
-                            <strong>Category:</strong> {item.category.category_name}
-                        </h3>
-                        <h3>
-                            <strong>Unit:</strong> {item.unit}
-                        </h3>
-                        <h3 className="flex item-center gap-2">
-                            <strong>Acquired on:</strong> {item.acquisition_date || <p className="text-gray-400 italic">N/A</p>}
-                        </h3>
-                    </div>
-
-                    {/* Units Table */}
-                    <div>
-                        <h1 className="mb-2">
-                            <strong>Total Units:</strong> {item.item_units_count}
-                        </h1>
-                        <h2 className="mb-2 font-bold">Units</h2>
-
-                        <DataTable
-                            columns={columns}
-                            data={item.item_units}
-                            searchKeys={[]}
-                            filters={[]}
-                            isLoading={false}
-                            entrySize={5}
-                            showEntries={false}
-                            showSearchFilter={false}
-                        />
-                    </div>
+                    </ScrollArea>
                 </DialogContent>
             </Dialog>
 
@@ -116,6 +124,7 @@ ItemDetailDialog.propTypes = {
     onDelete: PropTypes.func.isRequired,
     onDeleteUnit: PropTypes.func.isRequired,
     onUpdateUnit: PropTypes.func.isRequired,
+    isMobile: PropTypes,
 };
 
 export default ItemDetailDialog;
