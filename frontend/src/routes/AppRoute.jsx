@@ -14,17 +14,16 @@ import Landing from "../pages/Landing";
 import ProtectedRoute from "./ProtectedRoute";
 
 const WithSidebar = () => (
-    <div className="flex">
+    <div className="flex min-h-screen bg-background">
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar className="border-r" />
             <SidebarInset>
-                <div className="w-full p-2 overflow-auto">
-                    <SidebarTrigger className="-ml-0" />
+                <div className="flex-1 w-full p-2 md:p-1 overflow-auto">
+                    <SidebarTrigger className="md:hidden" />
                     <Outlet />
                 </div>
             </SidebarInset>
         </SidebarProvider>
-        {/* <Sidebar /> */}
     </div>
 );
 

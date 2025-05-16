@@ -144,17 +144,30 @@ const ManageAccounts = () => {
     }, []);
 
     return (
-        <>
+    <div className="px-1 sm:px-2 lg:px-2 py-2 sm:py-2 space-y-4 sm:space-y-2">
             <Toaster richColors position="top-center" expand={true} />
             <Header headerTitle="Manage Accounts" />
 
-            <div className="flex items-center justify-end mb-4">
-                <Button className="ml-auto" onClick={() => setAddUserDialogOpen(true)}>
-                    <Plus /> Add New User
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-4 mb-4">
+                <Button 
+                    className="w-full sm:w-auto" 
+                    onClick={() => setAddUserDialogOpen(true)}
+                >
+                    <Plus className="h-4 w-4 mr-2" />
+                    <span>Add New User</span>
                 </Button>
             </div>
 
-            <DataTable columns={columns} data={users} searchKeys={["name"]} filters={filters} isLoading={loading} />
+            <div className="overflow-x-auto">
+                <DataTable 
+                    columns={columns} 
+                    data={users} 
+                    searchKeys={["name"]} 
+                    filters={filters} 
+                    isLoading={loading}
+                    className="w-full"
+                />
+            </div>
 
             <UserDetailDialog
                 isOpen={userDetailDialogOpen}
@@ -164,7 +177,12 @@ const ManageAccounts = () => {
                 onDelete={handleDeleteUser}
             />
 
-            <AddUserDialog isOpen={addUserDialogOpen} onClose={() => setAddUserDialogOpen(false)} onSave={handleAddUserCall} roles={ROLES} />
+            <AddUserDialog 
+                isOpen={addUserDialogOpen} 
+                onClose={() => setAddUserDialogOpen(false)} 
+                onSave={handleAddUserCall} 
+                roles={ROLES} 
+            />
             
             <EditUserDialog
                 isOpen={editUserDialogOpen}
@@ -173,13 +191,14 @@ const ManageAccounts = () => {
                 onSave={handleEditUserCall}
                 roles={ROLES}
             />
+
             <DeleteUserDialog
                 isOpen={deleteUserDialogOpen}
                 onClose={() => setDeleteUserDialogOpen(false)}
                 user={selectedUser}
                 onDelete={handleDeleteUserCall}
             />
-        </>
+        </div>
     );
 };
 
