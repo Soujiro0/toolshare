@@ -23,7 +23,7 @@ export const getRequestedItemColumns = (handlers = {}, excludeKeys = []) =>
         },
         {
             accessorKey: "item.unit",
-            header: "Quantity to be Borrowed",
+            header: "Requests Qty.",
             sortable: true,
             cell: ({ row }) => {
                 const unit = row.original.item.unit;

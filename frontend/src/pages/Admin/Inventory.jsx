@@ -8,6 +8,7 @@ import DataTable from "@/components/tables/DataTable";
 import { getColumns } from "@/components/tables/InventoryManagement/ItemColumn";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -171,9 +172,11 @@ const Inventory = () => {
         },
     ];
 
-    const columns = getColumns({
+    const isMobile = useMediaQuery("(max-width: 768px)");
+
+    const columns = getColumns(isMobile, {
         onViewDetails: handleViewDetails,
-    });
+    }, []);
 
     useEffect(() => {
         fetchInitialData();
@@ -214,6 +217,7 @@ const Inventory = () => {
                 onDelete={handleDelete}
                 onUpdateUnit={handleUpdateUnit}
                 onDeleteUnit={handleDeleteUnit}
+                isMobile={isMobile}
             />
 
             <AddItemDialog
@@ -242,14 +246,14 @@ const Inventory = () => {
                 isOpen={deleteItemDialogOpen}
                 onClose={() => setDeleteItemDialogOpen(false)}
                 onConfirm={handleDeleteItemCall}
-                item={selectedItem}
+                item={selectedItem ?? {}}
             />
 
             <DeleteUnitDialog
                 isOpen={deleteUnitDialogOpen}
                 onClose={() => setDeleteUnitDialogOpen(false)}
                 onConfirm={handleDeleteUnitCall}
-                unit={selectedUnit}
+                unit={selectedUnit ?? {}}
             />
         </div>
     );

@@ -35,7 +35,7 @@ export const AssignItemScanner = ({ isOpen, onClose, onScanSuccess }) => {
             qrCodeSuccessCallback: handleSuccess,
             qrCodeErrorCallback: handleError,
             fps: 10,
-            qrbox: 250,
+            qrbox: 300,
             disableFlip: false,
         }),
         [handleSuccess, handleError]
@@ -45,7 +45,7 @@ export const AssignItemScanner = ({ isOpen, onClose, onScanSuccess }) => {
         <>
             <Toaster richColors position="top-center" expand={true} />
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent width="max-w-[80%]">
+                <DialogContent className="w-[95%] sm:w-[90%] h-[90vh] p-4 lg:p-6" width="90%">
                     <DialogHeader>
                         <DialogTitle>Scan To Assign Items</DialogTitle>
                     </DialogHeader>

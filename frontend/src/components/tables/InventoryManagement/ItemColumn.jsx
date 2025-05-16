@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { UseMediaQuery } from "@/hooks/useMediaQuery"; // Add this hook
 import { Eye } from "lucide-react";
 
-export const getColumns = (handlers = {}, excludeKeys = []) => {
-    const isMobile = UseMediaQuery("(max-width: 768px)");
+export const getColumns = (isMobile, handlers = {}, excludeKeys = []) => {
 
     const mobileColumns = [
         {

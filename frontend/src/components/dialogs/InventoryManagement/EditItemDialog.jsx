@@ -39,9 +39,9 @@ const EditItemDialog = ({ isOpen, onClose, item, onSave, categories }) => {
 
     if (!editedItem) return null;
 
-    return (
+        return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent width="w-[50%] min-w-[50%] max-w-[80%]">
+            <DialogContent className="w-[95%] sm:w-[80%] md:w-[70%] lg:w-[60%] max-w-[800px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Edit Item Details</DialogTitle>
                 </DialogHeader>
@@ -56,44 +56,43 @@ const EditItemDialog = ({ isOpen, onClose, item, onSave, categories }) => {
                         <Input name="name" value={editedItem.name} onChange={handleChange} placeholder="Enter item name" />
                     </div>
 
-                    <div className="flex item-center gap-2">
-                                            {/* Category */}
-                    <div className="flex flex-col gap-2">
-                        <Label>Category ID</Label>
-                        <Select value={editedItem.category_id} onValueChange={(value) => setEditedItem({ ...editedItem, category_id: value })}>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Item Category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {categories.map((cat) => (
-                                    <SelectItem key={cat.category_id} value={cat.category_id}>
-                                        {cat.category_name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        {/* Category */}
+                        <div className="flex flex-col gap-2 w-full sm:w-1/2">
+                            <Label>Category ID</Label>
+                            <Select value={editedItem.category_id} onValueChange={(value) => setEditedItem({ ...editedItem, category_id: value })}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Item Category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {categories.map((cat) => (
+                                        <SelectItem key={cat.category_id} value={cat.category_id}>
+                                            {cat.category_name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                    
-                    {/* Unit */}
-                    <div className="flex flex-col gap-2">
-                        <Label>Unit</Label>
-                        <Input name="unit" value={editedItem.unit} onChange={handleChange} placeholder="e.g., pcs, sets" />
-                    </div>
+                        {/* Unit */}
+                        <div className="flex flex-col gap-2 w-full sm:w-1/2">
+                            <Label>Unit</Label>
+                            <Input name="unit" value={editedItem.unit} onChange={handleChange} placeholder="e.g., pcs, sets" />
+                        </div>
                     </div>
 
                     {/* Acquisition Date */}
-                    <div className="flex flex-col gap-2 w-fit">
+                    <div className="flex flex-col gap-2">
                         <Label>Acquisition Date</Label>
-                        <Input type="date" name="acquisition_date" value={editedItem.acquisition_date || ""} onChange={handleChange} />
+                        <Input type="date" name="acquisition_date" value={editedItem.acquisition_date || ""} onChange={handleChange} className="w-full sm:w-fit" />
                     </div>
                 </div>
 
-                <DialogFooter>
-                    <Button variant="outline" onClick={onClose}>
+                <DialogFooter className="mt-6 flex-col sm:flex-row gap-2">
+                    <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit}>Save Changes</Button>
+                    <Button onClick={handleSubmit} className="w-full sm:w-auto">Save Changes</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

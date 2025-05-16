@@ -8,6 +8,7 @@ import DataTable from "@/components/tables/DataTable";
 import { getUserColumns } from "@/components/tables/UserManagement/UserColumn";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -135,7 +136,9 @@ const ManageAccounts = () => {
         },
     ];
 
-    const columns = getUserColumns({
+    const isMobile = useMediaQuery("(max-width: 768px)");
+
+    const columns = getUserColumns(isMobile, {
         onViewUserDetails: handleViewUserDetails,
     });
 

@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { UseMediaQuery } from "@/hooks/useMediaQuery";
 import { Eye } from "lucide-react";
 
-export const getUserColumns = (handlers = {}, excludeKeys = []) => {
-    const isMobile = UseMediaQuery("(max-width: 768px)");
+export const getUserColumns = (isMobile, handlers = {}, excludeKeys = []) => {
 
     const mobileColumns = [
         {
@@ -12,9 +10,18 @@ export const getUserColumns = (handlers = {}, excludeKeys = []) => {
             sortable: true,
         },
         {
-            accessorKey: "username",
-            header: "Username",
+            accessorKey: "name",
+            header: "Name",
             sortable: true,
+        },
+        {
+            accessorKey: "role.role_name",
+            header: "User Role",
+            sortable: true,
+            cell: ({ getValue }) => {
+                const value = getValue();
+                return value ? value.replace(/_/g, " ") : <span className="text-gray-400 italic">N/A</span>;
+            },
         },
         {
             id: "actions",
@@ -25,11 +32,7 @@ export const getUserColumns = (handlers = {}, excludeKeys = []) => {
                 return (
                     <div className="flex gap-2">
                         {handlers.onViewUserDetails && (
-                            <Button 
-                                onClick={() => handlers.onViewUserDetails(user)}
-                                size="sm"
-                                className="px-2 py-1"
-                            >
+                            <Button onClick={() => handlers.onViewUserDetails(user)} size="sm" className="px-2 py-1">
                                 <Eye className="h-4 w-4" />
                             </Button>
                         )}
@@ -108,7 +111,7 @@ export const getUserColumns = (handlers = {}, excludeKeys = []) => {
     ];
 
     const columns = isMobile ? mobileColumns : desktopColumns;
-    return columns.filter(col => !excludeKeys.includes(col.accessorKey || col.id));
+    return columns.filter((col) => !excludeKeys.includes(col.accessorKey || col.id));
 };
 
 export default getUserColumns;
