@@ -31,6 +31,11 @@ export function AppSidebar({ ...props }) {
 
     const baseAdminMenu = [
         {
+            title: "Dashboard",
+            icon: "table-columns",
+            url: "/admin-dashboard",
+        },
+        {
             title: "Inventory",
             icon: "boxes",
             url: "/inventory",

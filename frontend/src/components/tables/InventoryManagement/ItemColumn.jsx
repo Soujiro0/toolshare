@@ -9,13 +9,24 @@ export const getColumns = (isMobile, handlers = {}, excludeKeys = []) => {
             header: "ID",
             sortable: true,
         },
+{
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }) => (
+        <div className="whitespace-normal break-words">
+            {row.getValue("name")}
+        </div>
+    ),
+    sortable: true,
+},
         {
-            accessorKey: "name",
-            header: "Name",
+            accessorKey: "category.category_name",
+            header: "Category",
             sortable: true,
         },
         {
             id: "actions",
+            accessorKey: "actions",
             header: "Actions",
             sortable: false,
             cell: ({ row }) => {
@@ -74,6 +85,7 @@ export const getColumns = (isMobile, handlers = {}, excludeKeys = []) => {
         },
         {
             id: "actions",
+            accessorKey: "actions",
             header: "Actions",
             sortable: false,
             cell: ({ row }) => {

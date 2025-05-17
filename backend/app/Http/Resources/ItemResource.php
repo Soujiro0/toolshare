@@ -15,6 +15,7 @@ class ItemResource extends JsonResource
             'item_id' => $this->item_id,
             'name' => $this->name,
             'unit' => $this->unit,
+            'borrowed_count' => $this->borrowed_count,
             'acquisition_date' => $this->acquisition_date,
             'category' => new ItemCategoryResource($this->whenLoaded('category')),
             'item_units_count' => $itemUnitsCount,

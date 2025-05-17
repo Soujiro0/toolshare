@@ -20,6 +20,11 @@ class UserModel extends Model
         'last_updated'
     ];
 
+    public function borrowRequests()
+    {
+        return $this->hasMany(BorrowRequestModel::class, 'user_id');
+    }
+
     public function role()
     {
         return $this->belongsTo(RoleModel::class, 'role_id', 'role_id');

@@ -125,6 +125,14 @@ class BorrowRequestController extends Controller
             $borrowRequest = BorrowRequestModel::findOrFail($id);
 
             if (request('status') === 'APPROVED' || request('status') === 'REJECTED' || request('status') === 'CLAIMED') {
+                
+                if (request('status') === 'CLAIMED') {
+                    foreach ($borrowRequest->summary as $requestSummary) {
+                        $item = $requestSummary->item;
+                        $item->increment('borrowed_count', $requestSummary->quantity);
+                    }
+                }
+                
                 $borrowRequest->update([
                     'status' => $validated['status'],
                     'handled_by' => $validated['handled_by'],

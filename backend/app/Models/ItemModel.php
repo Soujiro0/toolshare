@@ -15,6 +15,7 @@ class ItemModel extends Model
         'category_id',
         'unit',
         'acquisition_date',
+        'borrowed_count',
         'date_created',
         'date_updated'
     ];

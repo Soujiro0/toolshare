@@ -1,4 +1,5 @@
 import * as BorrowItemService from './BorrowItemService';
+import * as DashboardService from './DashboardService';
 import * as ItemCategoryService from './ItemCategoryService';
 import * as ItemService from './ItemService';
 import * as LoginService from './LoginService';
@@ -11,7 +12,8 @@ export const ApiService = {
     BorrowItemService,
     ItemService,
     ItemCategoryService,
-    UserService
+    UserService,
+    DashboardService
 };
 
 export default ApiService;
