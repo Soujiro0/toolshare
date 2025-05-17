@@ -15,18 +15,20 @@ import { AuthContext } from "@/context/AuthContext";
 import PropTypes from "prop-types";
 import { useContext, useState } from "react";
 import { toast } from "sonner";
-import ReturnCheckDialog from "../ReturnCheckDialog";
 import AssignUnitsDialog from "./AssignUnitsDialog";
 import RequestQRCodeDialog from "./RequestQRCodeDialog";
+import ReturnCheckDialog from "./ReturnCheckDialog";
 
 const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmitting, refresh, isMobile }) => {
     const { auth } = useContext(AuthContext);
     const userRole = auth.user?.role;
 
+
     const [assignedItemsMap, setAssignedItemsMap] = useState({});
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showReturnDialog, setShowReturnDialog] = useState(false);
     const [showQrCodeDialog, setShowQrCodeDialog] = useState(false);
+
 
     const handleAssignUnits = (requestId, selectedUnits) => {
         setAssignedItemsMap((prev) => ({
@@ -71,6 +73,19 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
             onClose();
         }
     };
+
+    const handleReturnSubmitCall = async (payload) => {
+    try {
+        const response = await ApiService.BorrowItemService.returnUnits(payload);
+        console.log("Return check response:", response);
+        toast.success("Items returned successfully");
+        onClose();
+        refresh?.();
+    } catch (error) {
+        console.error("Error returning units:", error);
+        toast.error("Failed to return units");
+    }
+};
 
     const hasAssignedItems = Array.isArray(request?.assigned_items) && request.assigned_items.length > 0;
 
@@ -288,7 +303,13 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                         isMobile={isMobile}
                     />
 
-                    <ReturnCheckDialog isOpen={showReturnDialog} onClose={() => setShowReturnDialog(false)} request={request} />
+                    <ReturnCheckDialog 
+    isOpen={showReturnDialog} 
+    onClose={() => setShowReturnDialog(false)} 
+    request={request}
+    units={request.assigned_items}
+    onReturn={handleReturnSubmitCall}
+/>
                 </DialogContent>
             </Dialog>
         </>

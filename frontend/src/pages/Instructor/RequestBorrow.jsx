@@ -106,7 +106,7 @@ const RequestBorrow = () => {
 
             <Header headerTitle="Request Borrow" />
 
-            <Card className="p-6 shadow-lg">
+            <Card className="lg:p-6 px-0 py-4 shadow-lg">
                 <CardHeader>
                     <CardTitle>Request Form</CardTitle>
                     <CardDescription>Fill up the the and send a request for borrowing</CardDescription>
@@ -120,7 +120,7 @@ const RequestBorrow = () => {
                         <div className="space-y-2 flex flex-col">
                             <Label>Purpose:</Label>
                             <Textarea
-                                className="resize-none"
+                                className="resize-none min-h-[100px]"
                                 placeholder="Write your purpose of request"
                                 value={remarks}
                                 onChange={(e) => setRemarks(e.target.value)}
@@ -130,16 +130,18 @@ const RequestBorrow = () => {
 
                         <div className="space-y-2 flex flex-col">
                             <Label>Authorized Students:</Label>
-                            <div className="flex gap-2">
-                                <Input value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="Student Name" />
-                                <Input value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="Student ID" />
-                                <Button className="ml-auto" onClick={handleAddStudent}>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-grow">
+                                    <Input value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="Student Name" />
+                                    <Input value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="Student ID" />
+                                </div>
+                                <Button className="w-full sm:w-auto" onClick={handleAddStudent}>
                                     <span>Add Student</span>
-                                    <Plus />
+                                    <Plus className="ml-2 h-4 w-4" />
                                 </Button>
                             </div>
 
-                            <div className="mt-2">
+                            <div className="mt-2 overflow-x-auto">
                                 <DataTable
                                     columns={studentColumns}
                                     data={authorizedStudents}
@@ -154,25 +156,29 @@ const RequestBorrow = () => {
                     </div>
 
                     <div className="space-y-2 flex flex-col">
-                        <div className="flex items-center">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                             <Label>Selected Items:</Label>
-                            <Button className="ml-auto" onClick={() => setDialogOpen(true)}>
+                            <Button className="w-full sm:w-auto sm:ml-auto" onClick={() => setDialogOpen(true)}>
                                 <span>Add Items</span>
-                                <Plus />
+                                <Plus className="ml-2 h-4 w-4" />
                             </Button>
                         </div>
-                        <DataTable data={selectedItems} columns={selectedItemColumns} showEntries={false} showSearchFilter={false} />
+                        <div className="overflow-x-auto">
+                            <DataTable data={selectedItems} columns={selectedItemColumns} showEntries={false} showSearchFilter={false} />
+                        </div>
                     </div>
                 </CardContent>
 
-                <CardFooter>
+                <CardFooter className="flex flex-col sm:flex-row gap-2">
                     {isSubmitting ? (
-                        <Button onClick={handleSubmitRequest}>
-                            <LoaderCircle className="animate-spin" />
-                            Send Request
+                        <Button className="w-full sm:w-auto" disabled onClick={handleSubmitRequest}>
+                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                            Sending Request...
                         </Button>
                     ) : (
-                        <Button onClick={handleSubmitRequest}>Send Request</Button>
+                        <Button className="w-full sm:w-auto" onClick={handleSubmitRequest}>
+                            Send Request
+                        </Button>
                     )}
                 </CardFooter>
             </Card>

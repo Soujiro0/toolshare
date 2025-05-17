@@ -7,12 +7,15 @@ import { getRequestColumns } from "@/components/tables/BorrowingManagement/Reque
 import DataTable from "@/components/tables/DataTable";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthContext } from "@/context/AuthContext";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const YourRequests = () => {
     const { auth } = useContext(AuthContext);
     const userId = auth.user?.user_id;
+
+        const isMobile = useMediaQuery("(max-width: 768px)");
 
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
@@ -76,19 +79,24 @@ const YourRequests = () => {
         }
     };
 
-    const columns = getRequestColumns({
-        onViewRequest: handleViewRequest,
-        onEditRequest: openEditDialog,
-        onDeleteRequest: openDeleteDialog,
-    });
+    const columns = getRequestColumns(
+        isMobile,
+        {
+            onViewRequest: handleViewRequest,
+            onEditRequest: openEditDialog,
+            onDeleteRequest: openDeleteDialog,
+        },
+        []
+    );
 
     useEffect(() => {
         if (!userId) return;
         fetchRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId]);
 
     return (
-        <>
+        <div className="px-1 sm:px-2 lg:px-2 py-2 sm:py-2 space-y-4 sm:space-y-2">
             <Toaster richColors position="top-center" expand />
             <Header headerTitle="Your Requests" />
 
@@ -117,7 +125,7 @@ const YourRequests = () => {
                 request={selectedRequest}
                 onDelete={handleDeleteRequest}
             />
-        </>
+        </div>
     );
 };
 
