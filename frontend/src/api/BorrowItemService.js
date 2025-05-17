@@ -92,9 +92,9 @@ export async function assignUnitToRequest(assignData) {
     }
 }
 
-export async function returnUnits(requestId, returnData) {
+export async function returnUnits(returnData) {
     try {
-        const response = await fetch(`${API_BASE}/borrow-request-items.php/return/${requestId}`, {
+        const response = await fetch(`${API_BASE}/borrow-request-items/return`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

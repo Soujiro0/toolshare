@@ -22,16 +22,16 @@ const LoginForm = ({ handleSubmit }) => {
     };
 
     return (
-        <Card className="w-[350px] shadow-lg border-blue-200">
-            <CardHeader>
-                <CardTitle className="text-left mb-5">
-                    <h1 className="text-3xl font-bold text-[var(--primary-color)] mb-1">Log In</h1>
-                    <p className="font-medium">Access your account</p>
+        <Card className="w-[90vw] sm:w-[350px] shadow-lg border-blue-200">
+            <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-left mb-3 sm:mb-5">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-[var(--primary-color)] mb-1">Log In</h1>
+                    <p className="text-sm sm:text-base font-medium">Access your account</p>
                 </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
                         <FormField
                             control={form.control}
                             name="username"
@@ -40,13 +40,7 @@ const LoginForm = ({ handleSubmit }) => {
                                 <FormItem>
                                     <FormLabel className="my-2">Username</FormLabel>
                                     <FormControl>
-                                        <Input 
-                                            className="font-medium" 
-                                            type="text" 
-                                            placeholder="Enter your username" 
-                                            {...field} 
-                                            icon={"user"} 
-                                        />
+                                        <Input className="font-medium" type="text" placeholder="Enter your username" {...field} icon={"user"} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -60,23 +54,17 @@ const LoginForm = ({ handleSubmit }) => {
                                 <FormItem>
                                     <FormLabel className="my-2">Password</FormLabel>
                                     <FormControl>
-                                        <Input 
-                                            className="font-medium" 
-                                            type="password" 
-                                            placeholder="Enter your password" 
-                                            {...field} 
-                                            icon={"lock"} 
-                                        />
+                                        <Input className="font-medium" type="password" placeholder="Enter your password" {...field} icon={"lock"} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <Button 
-                            type="submit" 
-                            customColor={true} 
-                            size="lg" 
-                            className="bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-[var(--text-color-light)] w-full"
+                        <Button
+                            type="submit"
+                            customColor={true}
+                            size="lg"
+                            className="bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-[var(--text-color-light)] w-full h-10 sm:h-12 text-sm sm:text-base"
                         >
                             Log In
                         </Button>

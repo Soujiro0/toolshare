@@ -32,12 +32,12 @@ const Landing = () => {
     };
 
     return (
-        <div className="bg-[var(--background-color)] min-h-screen flex flex-col sm:flex-row items-center justify-center text-center p-6 gap-20">
-            <div>
-                <h1 className="text-4xl font-bold text-[var(--primary-color)]">ToolShare</h1>
-                <p className="font-medium">Tools & Equipment Borrowing System</p>
+        <div className="bg-[var(--background-color)] min-h-screen flex flex-col sm:flex-row items-center justify-center text-center p-4 sm:p-6 gap-6 sm:gap-20">
+            <div className="w-full sm:w-auto">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--primary-color)] mb-2">ToolShare</h1>
+                <p className="font-medium text-xs sm:text-sm md:text-base">Tools & Equipment Borrowing System</p>
             </div>
-            <div>
+            <div className="w-full sm:w-auto flex justify-center">
                 <LoginForm handleSubmit={handleSubmit} />
             </div>
         </div>
