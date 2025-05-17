@@ -16,6 +16,7 @@ export default function DataTable({
     showSearchFilter = true,
     showEntries = true,
     entrySize = 10,
+    showPagignation = true,
     isLoading = false,
 }) {
     const [sorting, setSorting] = React.useState([]);
@@ -254,10 +255,7 @@ export default function DataTable({
                             table.getRowModel().rows.map((row) => (
                                 <TableRow key={row.id}>
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell 
-                                            key={cell.id} 
-                                            className="px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm"
-                                        >
+                                        <TableCell key={cell.id} className="px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm">
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}
@@ -268,35 +266,37 @@ export default function DataTable({
                 </Table>
             </div>
 
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-4">
-                <div className="text-xs md:text-sm text-muted-foreground order-2 md:order-1">
-                    {isLoading
-                        ? "Loading..."
-                        : table.getRowModel().rows.length > 0
-                        ? `Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`
-                        : "No data available"}
+            {showPagignation ?? (
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-4">
+                    <div className="text-xs md:text-sm text-muted-foreground order-2 md:order-1">
+                        {isLoading
+                            ? "Loading..."
+                            : table.getRowModel().rows.length > 0
+                            ? `Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`
+                            : "No data available"}
+                    </div>
+                    <div className="flex gap-2 w-full md:w-auto order-1 md:order-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 md:flex-none text-xs md:text-sm"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage() || isLoading}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 md:flex-none text-xs md:text-sm"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage() || isLoading}
+                        >
+                            Next
+                        </Button>
+                    </div>
                 </div>
-                <div className="flex gap-2 w-full md:w-auto order-1 md:order-2">
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1 md:flex-none text-xs md:text-sm"
-                        onClick={() => table.previousPage()} 
-                        disabled={!table.getCanPreviousPage() || isLoading}
-                    >
-                        Previous
-                    </Button>
-                    <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex-1 md:flex-none text-xs md:text-sm"
-                        onClick={() => table.nextPage()} 
-                        disabled={!table.getCanNextPage() || isLoading}
-                    >
-                        Next
-                    </Button>
-                </div>
-            </div>
+            )}
         </div>
     );
 }
@@ -309,6 +309,7 @@ DataTable.propTypes = {
     showSearchFilter: PropTypes.bool,
     showEntries: PropTypes.bool,
     entrySize: PropTypes.number,
+    showPagignation: PropTypes.bool,
     isLoading: PropTypes.bool,
 };
 
@@ -318,5 +319,6 @@ DataTable.defaultProps = {
     showSearchFilter: true,
     entrySize: 10,
     showEntries: true,
+    showPagignation: true,
     isLoading: false,
 };

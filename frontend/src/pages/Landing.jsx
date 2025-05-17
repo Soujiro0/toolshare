@@ -15,7 +15,7 @@ const Landing = () => {
             login(response.token);
             switch (response.user.role) {
                 case "SUPER_ADMIN":
-                    navigate("/inventory");
+                    navigate("/admin-dashboard");
                     break;
                 case "ADMIN":
                     navigate("/admin-dashboard");

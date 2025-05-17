@@ -8,6 +8,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemUnitController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BorrowRequestItemController;
+use App\Http\Controllers\DashboardController;
 
 Route::post('/login', [
     AuthController::class,
@@ -47,3 +48,7 @@ Route::put('borrow-request-items/return', [
 Route::delete('borrow-request-items/{request_id}/{unit_id}', [BorrowRequestItemController::class, 'destroy']);
 
 Route::apiResource('borrow-request-items', BorrowRequestItemController::class);
+
+Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
+
+Route::get('dashboard/most-borrowed', [DashboardController::class, 'getMostBorrowedItems']);

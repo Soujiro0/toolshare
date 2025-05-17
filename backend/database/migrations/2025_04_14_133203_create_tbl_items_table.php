@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedInteger('category_id');
             $table->string('unit', 20);
             $table->date('acquisition_date')->nullable();
+            $table->integer('borrowed_count')->default(0);
 
             // Explicit timestamp columns
             $table->timestamp('date_created')->useCurrent();

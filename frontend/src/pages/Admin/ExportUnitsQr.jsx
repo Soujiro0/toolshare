@@ -35,13 +35,13 @@ export const ExportUnitsQr = () => {
     }, [])
 
     return (
-        <>
+        <div className="px-1 sm:px-2 lg:px-2 py-2 sm:py-2 space-y-4 sm:space-y-2">
             <Header headerTitle="Unit Export QR code"/>
             <div className="flex justify-end mb-4">
             <Button onClick={() => exportUnitsToExcel(data)}>Export to CSV</Button>
             </div>
             <DataTable data={data} columns={columns} showSearchFilter={false} isLoading={loading}/>
-        </>
+        </div>
     );
 };
 
