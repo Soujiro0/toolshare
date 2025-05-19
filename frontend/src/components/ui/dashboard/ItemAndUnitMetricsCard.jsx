@@ -1,11 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { LoaderCircle } from "lucide-react";
 
 const ItemAndUnitMetricsCard = ({ itemCount, unitCount, isLoading }) => {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Items & Units Metric</CardTitle>
+                <div className="flex justify-between">
+                    <div className="space-y-2">
+                        <CardTitle>Items & Units Metric</CardTitle>
+                        <CardDescription>Total number of Items and Units in Inventory</CardDescription>
+                    </div>
+                    {isLoading && <LoaderCircle className="animate-spin" />}
+                </div>
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">

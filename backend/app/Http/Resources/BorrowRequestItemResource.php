@@ -19,9 +19,9 @@ class BorrowRequestItemResource extends JsonResource
             'item_condition_in' => $this->item_condition_in,
             'damage_status' => $this->damage_status,
             'damage_notes' => $this->damage_notes,
-            'returned_date' => $this->returned_date,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'returned_date' => \Carbon\Carbon::parse($this->returned_date)->toIso8601String(),
+            'created_at' => \Carbon\Carbon::parse($this->created_at)->toIso8601String(),
+            'updated_at' => \Carbon\Carbon::parse($this->updated_at)->toIso8601String(),
         ];
     }
 }

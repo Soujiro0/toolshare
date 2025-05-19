@@ -13,7 +13,7 @@ export const ApiService = {
     ItemService,
     ItemCategoryService,
     UserService,
-    DashboardService
+    DashboardService,
 };
 
 export default ApiService;

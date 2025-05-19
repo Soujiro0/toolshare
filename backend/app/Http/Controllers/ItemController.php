@@ -9,6 +9,7 @@ use App\Http\Resources\ItemResource;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -34,6 +35,22 @@ class ItemController extends Controller
         }
     }
 
+    protected function handleImageUpload(Request $request)
+    {
+        if (!$request->hasFile('image')) {
+            return null;
+        }
+
+        $file = $request->file('image');
+
+        if (!$file->isValid()) {
+            throw new Exception('Uploaded file is not valid.');
+        }
+
+        // Store in 'public/items' folder and return just the path
+        return $file->store('items', 'public');
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -44,13 +61,23 @@ class ItemController extends Controller
                 'name' => 'required|string',
                 'category_id' => 'required|integer|exists:tbl_item_category,category_id',
                 'unit' => 'required|string|max:20',
-                'acquisition_date' => 'nullable|date'
+                'acquisition_date' => 'nullable|date',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
 
-            $item = ItemModel::create($request->all());
+            // Only take needed fields
+            $data = $request->only(['name', 'category_id', 'unit', 'acquisition_date']);
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $data['image_url'] = $this->handleImageUpload($request);
+            }
+
+            $item = ItemModel::create($data);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Item created succesfully',
+                'message' => 'Item created successfully',
                 'data' => new ItemResource($item->load('category'))
             ], 201);
         } catch (Exception $e) {
@@ -93,11 +120,33 @@ class ItemController extends Controller
                 'name' => 'required|string',
                 'category_id' => 'required|integer|exists:tbl_item_category,category_id',
                 'unit' => 'required|string|max:20',
-                'acquisition_date' => 'nullable|date'
+                'acquisition_date' => 'nullable|date',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'remove_image' => 'nullable|boolean'  // Add this validation rule
             ]);
 
             $item = ItemModel::findOrFail($id);
-            $item->update($request->only(['name', 'category_id', 'unit', 'acquisition_date']));
+            $data = $request->only(['name', 'category_id', 'unit', 'acquisition_date']);
+
+            // Handle image removal
+            if ($request->boolean('remove_image')) {
+                if ($item->image_path) {
+                    Storage::disk('public')->delete($item->image_path);
+                    $data['image_path'] = null;  // Set image_path to null
+                }
+            }
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                // Delete old image if exists
+                if ($item->image_path) {
+                    Storage::disk('public')->delete($item->image_path);
+                }
+                $data['image_path'] = $this->handleImageUpload($request);
+            }
+
+            $item->update($data);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Item updated successfully.',
@@ -142,6 +191,7 @@ class ItemController extends Controller
                 'name' => 'required|string',
                 'category_id' => 'required|integer|exists:tbl_item_category,category_id',
                 'unit' => 'required|string|max:20',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'acquisition_date' => 'nullable|date',
                 'units' => 'required|array|min:1',
                 'units.*.brand' => 'nullable|string|max:100',
@@ -154,15 +204,43 @@ class ItemController extends Controller
             // Check if the item already exists by name
             $item = ItemModel::where('name', $request->name)->first();
 
-            // Step 1: Create the item
-            // If the item doesn't exist, create a new one
+            // Prepare image URL if file present
+            $imageUrl = null;
+            if ($request->hasFile('image')) {
+                try {
+                    $imageUrl = $this->handleImageUpload($request);
+                } catch (Exception $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Error uploading image.',
+                        'error' => $e->getMessage()
+                    ], 500);
+                }
+            }
+
+            // Step 1: Create the item if it doesn't exist
             if (!$item) {
-                $item = ItemModel::create([
+                $itemData = [
                     'name' => $request->name,
                     'category_id' => $request->category_id,
                     'unit' => $request->unit,
-                    'acquisition_date' => $request->acquisition_date
-                ]);
+                    'acquisition_date' => $request->acquisition_date,
+                ];
+
+                // Change image_url to image_path
+                if ($imageUrl) {
+                    $itemData['image_path'] = str_replace(url('storage/'), '', $imageUrl);
+                }
+
+                $item = ItemModel::create($itemData);
+            } else if ($request->hasFile('image')) {
+                // Update existing item's image if a new one is provided
+                // Delete old image if exists
+                if ($item->image_path) {
+                    Storage::disk('public')->delete($item->image_path);
+                }
+                // Change image_url to image_path
+                $item->update(['image_path' => str_replace(url('storage/'), '', $imageUrl)]);
             }
 
             // Step 2: Get last used property_no suffix

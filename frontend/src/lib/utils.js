@@ -9,27 +9,43 @@ export function formatDate(dateString, options = {}) {
   if (!dateString) return "—";
 
   const defaultOptions = {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "Asia/Manila", // Set this to your expected timezone
   };
 
   const date = new Date(dateString);
-  return date.toLocaleDateString(undefined, { ...defaultOptions, ...options });
+  if (isNaN(date.getTime())) return "Invalid date";
+
+  return new Intl.DateTimeFormat("en-US", {
+    ...defaultOptions,
+    ...options,
+  }).format(date);
 }
 
 export const formatDateTime = (dateString, options = {}) => {
   if (!dateString) return "Invalid date";
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
+
+  const isRawMySQL = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateString);
+  const fixedDateString = isRawMySQL
+    ? dateString.replace(" ", "T") + "+08:00"
+    : dateString;
+
+  try {
+    return new Date(fixedDateString).toLocaleString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
+      timeZone: "Asia/Manila", // optional here, since +08:00 is present
       ...options,
-  }).format(date);
+    });
+  } catch {
+    return "Invalid date";
+  }
 };
 
 import ExcelJS from "exceljs";

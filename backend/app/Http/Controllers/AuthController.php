@@ -47,6 +47,7 @@ class AuthController extends Controller
                     'id' => $user->user_id,
                     'name' => $user->name,
                     'role' => $user->role_name,
+                    'username' => $user->username,
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {

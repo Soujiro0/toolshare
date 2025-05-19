@@ -13,8 +13,8 @@ class BorrowRequestSummaryResource extends JsonResource
             'request_id' => $this->request_id,
             'item' => new ItemResource($this->item),
             'quantity' => $this->quantity,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => \Carbon\Carbon::parse($this->created_at)->toIso8601String(),
+            'updated_at' => \Carbon\Carbon::parse($this->updated_at)->toIso8601String(),
         ];
     }
 }

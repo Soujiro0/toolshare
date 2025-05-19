@@ -15,13 +15,14 @@ class ItemResource extends JsonResource
             'item_id' => $this->item_id,
             'name' => $this->name,
             'unit' => $this->unit,
+            'image_url' => $this->image_path ? url('storage/' . $this->image_path) : null,
             'borrowed_count' => $this->borrowed_count,
-            'acquisition_date' => $this->acquisition_date,
+            'acquisition_date' => \Carbon\Carbon::parse($this->acquisition_date)->toIso8601String(),
             'category' => new ItemCategoryResource($this->whenLoaded('category')),
             'item_units_count' => $itemUnitsCount,
             'item_units' => ItemUnitResource::collection($itemUnits),
-            'date_created' => $this->date_created,
-            'date_updated' => $this->date_updated,
+            'date_created' => \Carbon\Carbon::parse($this->date_created)->toIso8601String(),
+            'date_updated' => \Carbon\Carbon::parse($this->date_updated)->toIso8601String(),
         ];
     }
 }

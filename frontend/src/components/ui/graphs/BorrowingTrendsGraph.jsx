@@ -1,27 +1,59 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
-import { addDays } from "date-fns";
+import { Input } from "@/components/ui/input";
+import { faCalendar } from "@fortawesome/free-solid-svg-icons";
+import { LoaderCircle } from "lucide-react";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-const BorrowingTrendsGraph = ({ data = [] }) => {
-    const [date, setDate] = useState({
-        from: addDays(new Date(), -7),
-        to: new Date(),
+const BorrowingTrendsGraph = ({ data = [], isLoading }) => {
+    const [dates, setDates] = useState({
+        from: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split("T")[0],
+        to: new Date().toISOString().split("T")[0],
     });
-    const [filteredData, setFilteredData] = useState(data);
+
+    const [filteredData, setFilteredData] = useState([]);
+
+    const handleDateChange = (e) => {
+        const { name, value } = e.target;
+        setDates((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
 
     useEffect(() => {
         if (!data.length) return;
 
-        const filtered = data.filter((item) => {
-            const itemDate = new Date(item.date);
-            return itemDate >= date.from && itemDate <= (date.to || new Date());
+        // Create array of all dates in range
+        const dateArray = [];
+        const currentDate = new Date(dates.from);
+        const endDate = new Date(dates.to);
+
+        while (currentDate <= endDate) {
+            dateArray.push(new Date(currentDate).toISOString().split("T")[0]);
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        // Map dates to counts, default to 0 if no data
+        const filtered = dateArray.map((date) => {
+            const matchingData = data.find((item) => item.date === date);
+            return {
+                date: date,
+                count: matchingData ? matchingData.count : 0,
+            };
         });
 
         setFilteredData(filtered);
-    }, [data, date]);
+    }, [data, dates]);
+
+    const formatXAxis = (tickItem) => {
+        const date = new Date(tickItem);
+        return date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+        });
+    };
 
     return (
         <Card className="col-span-full">
@@ -30,22 +62,34 @@ const BorrowingTrendsGraph = ({ data = [] }) => {
                     <CardTitle>Borrowing Trends</CardTitle>
                     <CardDescription>Number of borrows over time</CardDescription>
                 </div>
-                <DatePickerWithRange date={date} onDateChange={(newDate) => setDate(newDate)} className="w-full sm:w-auto" />
+                {!isLoading && (
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <Input type="date" name="from" value={dates.from} onChange={handleDateChange} icon={faCalendar} max={dates.to} />
+                        <Input type="date" name="to" value={dates.to} onChange={handleDateChange} icon={faCalendar} min={dates.from} />
+                    </div>
+                )}
             </CardHeader>
             <CardContent>
-                <div className="h-[200px] sm:h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={filteredData}>
-                            <XAxis dataKey="date" tickFormatter={(date) => new Date(date).toLocaleDateString()} />
-                            <YAxis />
-                            <Tooltip
-                                labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                                formatter={(value) => [`${value} requests`, "Count"]}
-                            />
-                            <Line type="monotone" dataKey="count" strokeWidth={2} stroke="#0268F9" />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
+                {isLoading ? (
+                    <span className="flex items-center justify-center gap-2 text-center py-4 font-bold">
+                        <LoaderCircle className="animate-spin" />
+                        Loading...Please wait
+                    </span>
+                ) : (
+                    <div className="h-[200px] sm:h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={filteredData}>
+                                <XAxis dataKey="date" tickFormatter={formatXAxis} interval="preserveStartEnd" />
+                                <YAxis allowDecimals={false} />
+                                <Tooltip
+                                    labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                                    formatter={(value) => [`${value} requests`, "Count"]}
+                                />
+                                <Line type="monotone" dataKey="count" strokeWidth={2} stroke="#0268F9" dot={{ r: 3 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
@@ -58,6 +102,7 @@ BorrowingTrendsGraph.propTypes = {
             count: PropTypes.number.isRequired,
         })
     ),
+    isLoading: PropTypes.bool,
 };
 
 export default BorrowingTrendsGraph;

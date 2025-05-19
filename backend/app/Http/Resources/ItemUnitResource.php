@@ -17,7 +17,7 @@ class ItemUnitResource extends JsonResource
             'specification' => $this->specification,
             'item_condition' => $this->item_condition,
             'status' => $this->status,
-            'date_acquired' => $this->date_acquired,
+            'date_acquired' => \Carbon\Carbon::parse($this->date_acquired)->toIso8601String(),
             // 'item' => new ItemResource($this->whenLoaded('item')), // full nested object
             // 'item' => $this->item,
             'item' => new ItemResource($this->item), // no whenLoaded

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name', 255);
             $table->unsignedInteger('category_id');
             $table->string('unit', 20);
+            $table->string('image_path')->nullable();
             $table->date('acquisition_date')->nullable();
             $table->integer('borrowed_count')->default(0);
 

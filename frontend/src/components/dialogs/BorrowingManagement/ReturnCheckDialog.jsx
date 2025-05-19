@@ -6,10 +6,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
+import ScannerDialog from "../ScannerDialog";
 
 const ReturnCheckDialog = ({ isOpen, onClose, request, units, onReturn }) => {
     const [returnedData, setReturnedData] = useState({});
     const isMobile = useMediaQuery("(max-width: 768px)");
+    const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
 
     const toggleCheckbox = (unit_id) => {
         setReturnedData((prev) => ({
@@ -57,7 +59,9 @@ const ReturnCheckDialog = ({ isOpen, onClose, request, units, onReturn }) => {
 
         console.log("Returning", payload);
 
+        onClose();
         onReturn(payload);
+
     };
 
     const handlers = useMemo(
@@ -74,23 +78,25 @@ const ReturnCheckDialog = ({ isOpen, onClose, request, units, onReturn }) => {
 
     const columns = useMemo(() => getReturnCheckColumns(isMobile, handlers), [handlers, isMobile]);
 
-    useEffect(() => {
-        if (isOpen && units) {
-            const initialData = units.reduce((acc, item) => {
-                acc[item.unit.unit_id] = {
-                    returned: false,
-                    damage_status: item.damage_status || "UNDAMAGED",
-                    damage_notes: item.damage_notes || "",
-                };
-                return acc;
-            }, {});
-            setReturnedData(initialData);
-        }
-    }, [isOpen, units]);
+useEffect(() => {
+    if (isOpen && units) {
+        const initialData = units.reduce((acc, item) => {
+            console.log("Processing unit:", item.unit.unit_id, "returned_date:", item.returned_date);
+            acc[item.unit.unit_id] = {
+                returned: item.returned_date ? true : false,
+                damage_status: item.damage_status || "UNDAMAGED",
+                damage_notes: item.damage_notes || "",
+            };
+            return acc;
+        }, {});
+        setReturnedData(initialData);
+    }
+}, [isOpen, units]);
 
     if (!request) return null;
 
     return (
+        <>
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="w-[95%] sm:w-[90%] h-[95vh] p-4 lg:p-6" width="90%">
                 <DialogHeader>
@@ -106,6 +112,12 @@ const ReturnCheckDialog = ({ isOpen, onClose, request, units, onReturn }) => {
                     </div>
                 </ScrollArea>
                 <div className="flex justify-end mt-4 space-x-2">
+                                            <Button 
+                            onClick={() => setIsScannerModalOpen(true)}
+                            className="w-full sm:w-auto"
+                        >
+                            Scan Items
+                        </Button>
                     <Button
                         onClick={handleReturn}
                         disabled={!Object.values(returnedData).some((entry) => entry.returned)}
@@ -116,6 +128,25 @@ const ReturnCheckDialog = ({ isOpen, onClose, request, units, onReturn }) => {
                 </div>
             </DialogContent>
         </Dialog>
+                    <ScannerDialog
+                isOpen={isScannerModalOpen}
+                onClose={() => setIsScannerModalOpen(false)}
+                onScanSuccess={(scannedUnitId) => {
+                    const unitId = Number(scannedUnitId);
+                    if (units.some(item => item.unit.unit_id === unitId)) {
+                        setReturnedData(prev => ({
+                            ...prev,
+                            [unitId]: {
+                                ...prev[unitId],
+                                returned: true,
+                                damage_status: prev[unitId]?.damage_status || "UNDAMAGED",
+                                damage_notes: prev[unitId]?.damage_notes || ""
+                            }
+                        }));
+                    }
+                }}
+            />
+            </>
     );
 };
 
