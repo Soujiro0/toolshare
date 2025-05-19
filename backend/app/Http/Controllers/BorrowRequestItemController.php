@@ -280,16 +280,29 @@ class BorrowRequestItemController extends Controller
                 $damage_status = $unit['damage_status'];
                 $damage_notes = $unit['damage_notes'] ?? null;
 
+                // Check if the item already has a return date
+                $existingItem = DB::table('tbl_borrow_request_items')
+                    ->where('request_id', $request_id)
+                    ->where('unit_id', $unit_id)
+                    ->first();
+
+                // Only update return date if it's not already set
+                $updateData = [
+                    'damage_status' => $damage_status,
+                    'damage_notes' => $damage_notes,
+                    'item_condition_in' => $this->mapDamageStatusToCondition($damage_status)
+                ];
+
+                // Add returned_date only if it's not already set
+                if (!$existingItem || !$existingItem->returned_date) {
+                    $updateData['returned_date'] = now();
+                }
+
                 // Update borrow request item with return info
                 DB::table('tbl_borrow_request_items')
                     ->where('request_id', $request_id)
                     ->where('unit_id', $unit_id)
-                    ->update([
-                        'damage_status' => $damage_status,  // Correctly set the damage status
-                        'damage_notes' => $damage_notes,
-                        'returned_date' => now(),
-                        'item_condition_in' => $this->mapDamageStatusToCondition($damage_status) // Map damage_status to item_condition_in
-                    ]);
+                    ->update($updateData);
 
                 // Mark unit as available again in tbl_item_units
                 DB::table('tbl_item_units')

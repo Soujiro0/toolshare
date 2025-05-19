@@ -3,6 +3,7 @@ import Header from "@/components/layout/Header";
 import DataTable from "@/components/tables/DataTable";
 import { getUnitColumns } from "@/components/tables/InventoryManagement/ItemUnitColumn";
 import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { exportUnitsToExcel } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
@@ -10,6 +11,7 @@ export const ExportUnitsQr = () => {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
+    const isMobile = useMediaQuery("(max-width: 768px)");
 
     const fetchUnits = async () => {
         setLoading(true);
@@ -23,7 +25,7 @@ export const ExportUnitsQr = () => {
         }
     }
 
-    const columns = getUnitColumns({}, ["actions"]);
+    const columns = getUnitColumns(isMobile, {}, ["actions"]);
 
     useEffect(() => {
         fetchUnits();

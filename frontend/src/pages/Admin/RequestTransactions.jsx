@@ -1,6 +1,6 @@
 import ApiService from "@/api/ApiService";
 import ViewRequestDetails from "@/components/dialogs/BorrowingManagement/ViewRequestDetails";
-import RequestScanner from "@/components/dialogs/RequestScanner";
+import ScannerDialog from "@/components/dialogs/ScannerDialog";
 import Header from "@/components/layout/Header";
 import DataTable from "@/components/tables/DataTable";
 import { getRequestTransactionColumns } from "@/components/tables/RequestTransactionManagement/RequestTransactionColumn";
@@ -95,7 +95,7 @@ return (
             />
         </div>
 
-        <RequestScanner
+        <ScannerDialog
             isOpen={isRequestScannerOpen}
             onClose={() => setIsRequestScannerOpen(false)}
             onScanSuccess={(scannedRequestId) => {

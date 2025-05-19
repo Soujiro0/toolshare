@@ -10,7 +10,7 @@ import {
 import { useEffect, useState } from "react";
 
 
-const BorrowedHistoryDialog = ({ isOpen, onClose, selectedItem }) => {
+const BorrowedHistoryDialog = ({ isOpen, onClose, selectedItem, isMobile }) => {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -28,7 +28,7 @@ const BorrowedHistoryDialog = ({ isOpen, onClose, selectedItem }) => {
         }
     };
 
-    const columns = getItemUnitHistoryColumn({}, ["unit.property_no","unit.item.name","unit.brand", "unit.model", "actions"]);
+    const columns = getItemUnitHistoryColumn(isMobile, {}, ["unit.property_no","unit.item.name","unit.brand", "unit.model", "actions"]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -38,14 +38,20 @@ const BorrowedHistoryDialog = ({ isOpen, onClose, selectedItem }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent width="w-[80%] min-w-[80%] max-w-[700px]">
+            <DialogContent className="w-[95%] sm:w-[90%] h-[90vh] p-4 lg:p-6" width="90%">
                 <DialogHeader>
                     <DialogTitle>Borrowed History</DialogTitle>
                 </DialogHeader>
                 
-                <DataTable data={history || []} columns={columns || []} isLoading={loading} showSearchFilter={false}/>
-
-
+                <div className="h-[calc(90vh-8rem)] overflow-y-auto">
+                    <DataTable 
+                        data={history || []} 
+                        columns={columns || []} 
+                        isLoading={loading} 
+                        showSearchFilter={false}
+                        className="w-full"
+                    />
+                </div>
             </DialogContent>
         </Dialog>
     );

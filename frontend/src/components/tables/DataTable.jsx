@@ -251,6 +251,14 @@ export default function DataTable({
                                     </span>
                                 </TableCell>
                             </TableRow>
+                        ) : data.length <= 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="text-center py-4 font-bold">
+                                    <span className="flex items-center justify-center gap-2">
+                                        <p>No Data Available</p>
+                                    </span>
+                                </TableCell>
+                            </TableRow>
                         ) : (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow key={row.id}>
@@ -266,7 +274,7 @@ export default function DataTable({
                 </Table>
             </div>
 
-            {showPagignation ?? (
+            {showPagignation && (
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-4">
                     <div className="text-xs md:text-sm text-muted-foreground order-2 md:order-1">
                         {isLoading

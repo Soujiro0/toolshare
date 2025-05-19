@@ -51,7 +51,23 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
                     </DialogHeader>
                     <ScrollArea className="h-[calc(90vh-8rem)]">
                         <div className="px-3">
-                            {/* Metadata */}
+                            {/* Metadata */}    
+                            <div className="p-3 flex justify-center w-full">
+                                {/* Add this block for image display */}
+                                {item.image_url ? (
+                                    <div className="mb-4">
+                                        <h3 className="text-sm font-medium mb-2 text-center">Item Image</h3>
+                                        <div className="w-32 h-32">
+                                            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center">
+                                        <span className="text-xs text-center text-gray-400">No image</span>
+                                    </div>
+                                )}
+                                {/* ... rest of the content ... */}
+                            </div>
                             <div className="mb-4 flex flex-col gap-2">
                                 <h1 className="text-sm sm:text-base">
                                     <strong>Item ID:</strong> {item.item_id}
@@ -111,6 +127,7 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
                 isOpen={isHistoryOpen}
                 onClose={() => setIsHistoryOpen(false)}
                 selectedItem={{ ...item, unit_id: selectedUnit?.unit_id }}
+                isMobile={isMobile}
             />
         </>
     );

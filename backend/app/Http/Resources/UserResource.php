@@ -14,8 +14,8 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'role' => new RoleResource($this->whenLoaded('role')),
-            'date_created' => $this->date_created,
-            'last_updated' => $this->last_updated,
+            'date_created' => \Carbon\Carbon::parse($this->date_created)->toIso8601String(),
+            'last_updated' => \Carbon\Carbon::parse($this->last_updated)->toIso8601String(),
         ];
     }
 }

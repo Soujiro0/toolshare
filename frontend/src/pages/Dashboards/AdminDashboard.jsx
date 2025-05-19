@@ -6,8 +6,8 @@ import { getRequestTransactionColumns } from "@/components/tables/RequestTransac
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ItemAndUnitMetricsCard from "@/components/ui/dashboard/ItemAndUnitMetricsCard";
-import RequestMetricsCard from "@/components/ui/dashboard/RequestMetricsCard";
 import RequestStatusCard from "@/components/ui/dashboard/RequestStatusCard";
+import UserRequestMetricsCard from "@/components/ui/dashboard/UserRequestMetricsCard";
 import BorrowingTrendsGraph from "@/components/ui/graphs/BorrowingTrendsGraph";
 import InventoryHealthChart from "@/components/ui/graphs/InventoryHealthChart";
 import PopularItemsGraph from "@/components/ui/graphs/PopularItemsGraph";
@@ -143,9 +143,9 @@ const AdminDashboard = () => {
 
                 <ItemAndUnitMetricsCard itemCount={stats.totalItems} unitCount={stats.totalUnits} isLoading={loading}/>
 
-                <RequestMetricsCard todayCount={stats.approvedToday} weekCount={stats.approvedThisWeek} />
+                <UserRequestMetricsCard todayRequests={stats.approvedToday} weekRequests={stats.approvedThisWeek} isLoading={loading} />
 
-                <RequestStatusCard requests={stats.requests} />
+                <RequestStatusCard requests={stats.requests} isLoading={loading} />
 
                 <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Pending Requests */}
@@ -201,14 +201,14 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <InventoryHealthChart data={stats.inventoryHealth} />
-                <TopRequestersChart data={stats.topRequesters} />
+                <InventoryHealthChart data={stats.inventoryHealth} isLoading={loading} />
+                <TopRequestersChart data={stats.topRequesters} isLoading={loading} />
             </div>
 
             {/* Graphs Grid */}
             <div className="grid grid-cols-1 gap-4">
-                <BorrowingTrendsGraph data={stats.requestCount} />
-                <PopularItemsGraph data={stats.popularItems} />
+                <BorrowingTrendsGraph data={stats.requestCount} isLoading={loading} />
+                <PopularItemsGraph data={stats.popularItems} isLoading={loading} />
             </div>
 
             <AddItemDialog isOpen={addItemDialogOpen} onClose={() => setAddItemDialogOpen(false)} onSave={handleAddItem} categories={categories} />

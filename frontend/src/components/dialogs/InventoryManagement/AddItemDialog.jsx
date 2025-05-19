@@ -28,6 +28,16 @@ const AddItemDialog = ({ isOpen, onClose, onSave, categories }) => {
     });
     const [multipleUnitToBeAdd, setMultipleUnitToBeAdd] = useState(1);
 
+    const [imagePreview, setImagePreview] = useState(null);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData({ ...formData, image: file });
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
     const handleBaseChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -52,15 +62,39 @@ const AddItemDialog = ({ isOpen, onClose, onSave, categories }) => {
     };
 
     const handleSave = () => {
-        onSave(formData);
-        setFormData({
-            name: "",
-            category_id: "",
-            unit: "",
-            acquisition_date: "",
-            units: [{ ...defaultUnit }],
-        });
-        onClose();
+    const formDataToSend = new FormData();
+
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("category_id", formData.category_id);
+    formDataToSend.append("unit", formData.unit);
+    formDataToSend.append("acquisition_date", formData.acquisition_date);
+
+    if (formData.image) {
+        formDataToSend.append("image", formData.image);
+    }
+
+    formData.units.forEach((unit, index) => {
+        formDataToSend.append(`units[${index}][brand]`, unit.brand);
+        formDataToSend.append(`units[${index}][model]`, unit.model);
+        formDataToSend.append(`units[${index}][specification]`, unit.specification);
+        formDataToSend.append(`units[${index}][item_condition]`, unit.item_condition);
+        formDataToSend.append(`units[${index}][quantity]`, unit.quantity);
+    });
+
+    // Debug print
+    for (let pair of formDataToSend.entries()) {
+        console.log(pair[0], pair[1]);
+    }
+
+    onSave(formDataToSend);
+    setFormData({
+        name: "",
+        category_id: "",
+        unit: "",
+        acquisition_date: "",
+        units: [{ ...defaultUnit }],
+    });
+    onClose();
     };
 
     return (
@@ -87,6 +121,34 @@ const AddItemDialog = ({ isOpen, onClose, onSave, categories }) => {
                         <div className="grid gap-3">
                             <div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-4">
                                 <div className="w-full grid gap-3">
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Item Image</Label>
+                                        <div className="flex flex-col items-center gap-4">
+                                            {imagePreview ? (
+                                                <div className="w-32 h-32 relative">
+                                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        className="absolute -top-2 -right-2"
+                                                        onClick={() => {
+                                                            setImagePreview(null);
+                                                            setFormData({ ...formData, image: null });
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center">
+                                                    <span className="text-xs text-center text-gray-400">No image</span>
+                                                </div>
+                                            )}
+                                            <Input type="file" accept="image/*" onChange={handleImageChange} className="w-full" />
+                                            <span className="text-sm text-muted-foreground">Supported formats: JPEG, PNG, JPG (max 2MB)</span>
+                                        </div>
+                                    </div>
+
                                     <div className="flex flex-col gap-2">
                                         <Label>Item Name</Label>
                                         <Input name="name" value={formData.name} onChange={handleBaseChange} required />

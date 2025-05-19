@@ -1,0 +1,10 @@
+{
+    "appId": "com.toolshare.app",
+    "appName": "Tool Share - Tools and Equipment Borrowing System",
+    "webDir": "dist",
+    "server": {
+        "androidScheme": "http",
+        "allowNavigation": ["*"],
+        "cleartext": true
+    }
+}

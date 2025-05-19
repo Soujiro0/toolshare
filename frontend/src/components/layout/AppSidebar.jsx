@@ -20,12 +20,12 @@ export function AppSidebar({ ...props }) {
         const handleResize = () => {
             setIsMobile(window.innerWidth < 768);
         };
-        
+
         handleResize();
-        window.addEventListener('resize', handleResize);
-        
+        window.addEventListener("resize", handleResize);
+
         return () => {
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener("resize", handleResize);
         };
     }, []);
 
@@ -41,18 +41,23 @@ export function AppSidebar({ ...props }) {
             url: "/inventory",
         },
         {
-            title: "Unit QR Export",
-            icon: "file-export",
-            url: "/units-qr-export",
-        },
-        {
             title: "Request Transactions",
             icon: "clipboard",
             url: "/request-transactions",
         },
+        {
+            title: "Unit QR Export",
+            icon: "file-export",
+            url: "/units-qr-export",
+        },
     ];
 
     const instructorMenu = [
+        {
+            title: "Dashboard",
+            icon: "table-columns",
+            url: "/instructor-dashboard",
+        },
         {
             title: "Request Borrow",
             icon: "hand-holding",
@@ -69,7 +74,7 @@ export function AppSidebar({ ...props }) {
 
     if (auth.user?.role === "SUPER_ADMIN") {
         menuItems = [...baseAdminMenu];
-        menuItems.splice(1, 0, {
+        menuItems.splice(3, 0, {
             title: "Manage Accounts",
             icon: "user-tie",
             url: "/admin-accounts",
@@ -90,59 +95,32 @@ export function AppSidebar({ ...props }) {
     };
 
     return (
-        <Sidebar 
-            collapsible="icon" 
-            collapsed={isMobile}
-            className="transition-all duration-300 ease-in-out"
-            {...props}
-        >
+        <Sidebar collapsible="icon" collapsed={isMobile} className="transition-all duration-300 ease-in-out" {...props}>
             <SidebarHeader className="relative">
-                <SidebarMenuButton 
-                    tooltip="Logo" 
-                    className="py-4 md:py-10 flex gap-3 items-center justify-between px-4"
-                >
-                    <img 
-                        src={logo} 
-                        alt="logo" 
-                        className="h-8 w-8 md:h-12 md:w-12 object-contain" 
-                    />
-                    <span className="text-xl md:text-2xl font-bold hidden md:inline-block">
-                        Toolshare
-                    </span>
+                <SidebarMenuButton tooltip="Logo" className="py-4 md:py-10 flex gap-3 items-center justify-between px-4">
+                    <img src={logo} alt="logo" className="h-8 w-8 md:h-12 md:w-12 object-contain" />
+                    <span className="text-xl md:text-2xl font-bold hidden md:inline-block">Toolshare</span>
                 </SidebarMenuButton>
             </SidebarHeader>
-            
+
             <SidebarContent className="px-2 md:px-4">
                 <hr className="mx-2 md:mx-5 my-2" />
-                <NavMain 
-                    items={menuItems} 
-                    className="space-y-1" 
-                />
+                <NavMain items={menuItems} className="space-y-1" />
             </SidebarContent>
-            
+
             <SidebarFooter className="mt-auto">
-                <SidebarMenuButton 
-                    tooltip="logout"
-                    className="p-2 md:p-4"
-                >
+                <SidebarMenuButton tooltip="logout" className="p-2 md:p-4">
                     <a
                         onClick={openLogoutModal}
                         className="flex items-center gap-3 md:gap-5 rounded w-full text-gray-700 hover:text-blue-600 px-2 py-2 transition-colors"
                     >
-                        <FontAwesomeIcon 
-                            icon={["fas", "sign-out-alt"]} 
-                            className="w-4 h-4 md:w-5 md:h-5"
-                        />
+                        <FontAwesomeIcon icon={["fas", "sign-out-alt"]} className="w-4 h-4 md:w-5 md:h-5" />
                         <span className="hidden md:inline-block">Log Out</span>
                     </a>
-                    <LogoutDialog 
-                        isOpen={isLogoutModalOpen} 
-                        onClose={closeLogoutModal} 
-                        onConfirm={confirmLogout} 
-                    />
+                    <LogoutDialog isOpen={isLogoutModalOpen} onClose={closeLogoutModal} onConfirm={confirmLogout} />
                 </SidebarMenuButton>
             </SidebarFooter>
-            
+
             <SidebarRail className="hidden md:block" />
         </Sidebar>
     );

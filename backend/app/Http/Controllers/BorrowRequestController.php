@@ -125,14 +125,14 @@ class BorrowRequestController extends Controller
             $borrowRequest = BorrowRequestModel::findOrFail($id);
 
             if (request('status') === 'APPROVED' || request('status') === 'REJECTED' || request('status') === 'CLAIMED') {
-                
+
                 if (request('status') === 'CLAIMED') {
                     foreach ($borrowRequest->summary as $requestSummary) {
                         $item = $requestSummary->item;
                         $item->increment('borrowed_count', $requestSummary->quantity);
                     }
                 }
-                
+
                 $borrowRequest->update([
                     'status' => $validated['status'],
                     'handled_by' => $validated['handled_by'],
@@ -194,22 +194,25 @@ class BorrowRequestController extends Controller
             $borrowRequest->remarks = $validated['remarks'] ?? null;
             $borrowRequest->save();
 
-            // Update Borrow Request Items
-            foreach ($validated['items'] as $item) {
-                $existingSummary = BorrowRequestSummaryModel::where('request_id', $borrowRequest->request_id)
-                    ->where('item_id', $item['item_id'])
-                    ->first();
+            // Get all current item IDs from the request
+            $currentItemIds = collect($validated['items'])->pluck('item_id')->toArray();
 
-                if ($existingSummary) {
-                    $existingSummary->quantity = $item['quantity'];
-                    $existingSummary->save();
-                } else {
-                    BorrowRequestSummaryModel::create([
+            // Remove items that are no longer in the request
+            BorrowRequestSummaryModel::where('request_id', $borrowRequest->request_id)
+                ->whereNotIn('item_id', $currentItemIds)
+                ->delete();
+
+            // Update or create items in the request
+            foreach ($validated['items'] as $item) {
+                BorrowRequestSummaryModel::updateOrCreate(
+                    [
                         'request_id' => $borrowRequest->request_id,
-                        'item_id' => $item['item_id'],
-                        'quantity' => $item['quantity'],
-                    ]);
-                }
+                        'item_id' => $item['item_id']
+                    ],
+                    [
+                        'quantity' => $item['quantity']
+                    ]
+                );
             }
 
             // Update Authorized Students (add new ones)

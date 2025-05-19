@@ -13,6 +13,7 @@
     "package": "electron-packager . MyApp --platform=win32 --arch=x64"
   },
   "dependencies": {
+    "@capacitor/android": "^7.2.0",
     "@capacitor/camera": "^7.0.1",
     "@capacitor/core": "^7.2.0",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",

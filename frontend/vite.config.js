@@ -3,18 +3,23 @@ import react from '@vitejs/plugin-react-swc';
 import path from "path";
 import { defineConfig } from 'vite';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
   ],
   css: {
-    postcss: "/postcss.config.js", // Ensure PostCSS is referenced
+    postcss: "/postcss.config.js",
   },
-  base: '/dist/',
+  base: './',
   build: {
-    minify: false,  // Disable minification
+    outDir: 'dist',
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   },
   resolve: {
     alias: {

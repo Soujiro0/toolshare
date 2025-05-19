@@ -34,14 +34,12 @@ export async function getItemById(itemId) {
 }
 
 export async function createItem(itemData) {
-    console.log(itemData)
     try {
+        // Remove Content-Type header when sending FormData
         const response = await fetch(`${API_BASE}/items-with-units`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(itemData),
+            // Don't set Content-Type - browser will set it with boundary for FormData
+            body: itemData // Send FormData directly
         });
         const data = await response.json();
         return data;
@@ -53,13 +51,17 @@ export async function createItem(itemData) {
 
 export async function updateItem(itemId, itemData) {
     try {
+        // Append the method spoofing here if not already appended
+        if (!itemData.has('_method')) {
+            itemData.append('_method', 'PUT');
+        }
+
         const response = await fetch(`${API_BASE}/items/${itemId}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(itemData),
+            method: 'POST', // use POST here
+            body: itemData,
+            // Don't set Content-Type, browser will set it automatically with boundary
         });
+
         const data = await response.json();
         return data;
     } catch (error) {

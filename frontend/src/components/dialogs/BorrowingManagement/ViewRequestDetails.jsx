@@ -227,9 +227,11 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between">
                                                 <Label>Assign Items:</Label>
+                                                {!(request.status === "CLAIMED" || request.status === "RETURNED") && (
                                                 <Button size="sm" onClick={() => setShowAssignModal(true)}>
                                                     Edit Assign Items
                                                 </Button>
+                                                )}
                                             </div>
                                             <div className="rounded-md border">
                                                 <DataTable
