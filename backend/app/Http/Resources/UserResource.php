@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
 class UserResource extends JsonResource
 {
@@ -14,8 +15,8 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'role' => new RoleResource($this->whenLoaded('role')),
-            'date_created' => \Carbon\Carbon::parse($this->date_created)->toIso8601String(),
-            'last_updated' => \Carbon\Carbon::parse($this->last_updated)->toIso8601String(),
+            'date_created' => $this->date_created ? Carbon::parse($this->date_created)->toIso8601String() : null,
+            'last_updated' => $this->last_updated ? Carbon::parse($this->last_updated)->toIso8601String() : null,
         ];
     }
 }

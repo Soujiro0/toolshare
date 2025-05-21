@@ -30,47 +30,51 @@ const RequestStatusCard = ({ requests = [], isLoading }) => {
         }));
     };
 
-    useEffect(() => {
-        if (!requests?.length) return;
+useEffect(() => {
+    if (!requests?.length) return;
 
-        // Create array of all dates in range
-        const dateArray = [];
-        const currentDate = new Date(dates.from);
-        const endDate = new Date(dates.to);
-        endDate.setHours(23, 59, 59, 999); // Set end date to end of day
+    // Create array of all dates in range
+    const dateArray = [];
+    const currentDate = new Date(dates.from);
+    const endDate = new Date(dates.to);
+    endDate.setHours(23, 59, 59, 999); // Set end date to end of day
 
-        while (currentDate <= endDate) {
-            dateArray.push(new Date(currentDate).toISOString().split("T")[0]);
-            currentDate.setDate(currentDate.getDate() + 1);
+    while (currentDate <= endDate) {
+        dateArray.push(new Date(currentDate).toISOString().split("T")[0]);
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // Filter requests based on date range and user role
+    const filteredRequests = requests.filter((request) => {
+        const requestDate = new Date(request.request_date);
+        const isInDateRange = requestDate >= new Date(dates.from) && requestDate <= endDate;
+
+        // Show all requests for admin/superadmin, filter only for instructor
+        if (auth.user?.role === "INSTRUCTOR") {
+            return isInDateRange && request.user?.user_id === auth.user?.user_id;
         }
+        return isInDateRange; // For ADMIN and SUPERADMIN show all requests
+    });
 
-        // Filter requests based on date range and user role
-        const filteredRequests = requests.filter((request) => {
-            const requestDate = new Date(request.request_date);
-            const isInDateRange = requestDate >= new Date(dates.from) && requestDate <= endDate;
-
-            if (auth.user?.role === "INSTRUCTOR") {
-                return isInDateRange && request.user?.user_id === auth.user?.user_id;
-            }
-            return isInDateRange;
-        });
-
-        // Calculate stats from filtered requests
-        const stats = filteredRequests.reduce((acc, request) => {
+    // Calculate stats from filtered requests
+    const stats = filteredRequests.reduce(
+        (acc, request) => {
             if (request.status) {
                 acc[request.status] = (acc[request.status] || 0) + 1;
             }
             return acc;
-        }, {
+        },
+        {
             PENDING: 0,
             APPROVED: 0,
             REJECTED: 0,
             CLAIMED: 0,
             RETURNED: 0,
-        });
+        }
+    );
 
-        setFilteredStats(stats);
-    }, [requests, dates, auth.user]);
+    setFilteredStats(stats);
+}, [requests, dates, auth.user]);
 
     const statusColors = {
         PENDING: "bg-yellow-400 text-black",
