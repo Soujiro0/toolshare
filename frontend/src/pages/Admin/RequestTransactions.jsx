@@ -21,21 +21,36 @@ const RequestTransaction = () => {
 
     const [isRequestScannerOpen, setIsRequestScannerOpen] = useState(false);
 
+    const [isAutoRefreshing, setIsAutoRefreshing] = useState(true);
+
+    // Add manual refresh function
+    // Update manual refresh handler
+    const handleManualRefresh = () => {
+        fetchRequests(false); // Pass false for manual refresh
+        toast.success("Data refreshed");
+    };
+
     const handleViewRequest = (request) => {
         setSelectedRequest(request);
         setIsViewOpen(true);
     };
 
-    const fetchRequests = async () => {
-        setLoading(true);
+    // Add isAutoRefresh parameter to fetchRequests
+    const fetchRequests = async (isAutoRefresh = false) => {
+        // Only show loading indicator for manual refreshes
+        if (!isAutoRefresh) {
+            setLoading(true);
+        }
+
         try {
             const data = await ApiService.RequestBorrowService.getAllRequests();
             setRequests(data.data);
-            console.log(userId);
         } catch (error) {
             console.error("Error fetching requests:", error);
         } finally {
-            setLoading(false);
+            if (!isAutoRefresh) {
+                setLoading(false);
+            }
         }
     };
 
@@ -62,65 +77,75 @@ const RequestTransaction = () => {
 
     const isMobile = useMediaQuery("(max-width: 768px)");
 
-    const columns = getRequestTransactionColumns(isMobile, {
-        onViewRequest: handleViewRequest,
-    }, []);
+    const columns = getRequestTransactionColumns(
+        isMobile,
+        {
+            onViewRequest: handleViewRequest,
+        },
+        []
+    );
 
+    // Update initial load
     useEffect(() => {
-        fetchRequests();
+        fetchRequests(false); // Pass false for initial load
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-return (
-    <div className="px-1 sm:px-2 lg:px-2 py-2 sm:py-2 space-y-4 sm:space-y-2">
-        <Toaster richColors position="top-center" expand={true} />
-        <Header headerTitle="Request Transactions" />
-        
-        <div className="flex flex-col justify-end sm:flex-row items-center gap-4 mb-4">
-            <Button 
-                className="w-full sm:w-auto"
-                onClick={() => setIsRequestScannerOpen(true)}
-            >
-                <span>Scan a Request</span>
-            </Button>
-        </div>
+    // Update the auto-refresh effect
+    useEffect(() => {
+        if (isAutoRefreshing) {
+            const interval = setInterval(() => {
+                fetchRequests(true); // Pass true for auto-refresh
+            }, 30000);
 
-        <div className="overflow-x-auto">
-            <DataTable 
-                columns={columns} 
-                data={requests} 
-                searchKeys={[]} 
-                isLoading={loading}
-                className="w-full"
+            return () => clearInterval(interval);
+        }
+    }, [isAutoRefreshing]);
+
+    return (
+        <div className="px-1 sm:px-2 lg:px-2 py-2 sm:py-2 space-y-4 sm:space-y-2">
+            <Toaster richColors position="top-center" expand={true} />
+            <Header headerTitle="Request Transactions" />
+
+            <div className="flex flex-col justify-end sm:flex-row items-center gap-4 mb-4">
+                <Button className="w-full sm:w-auto" onClick={() => setIsRequestScannerOpen(true)}>
+                    <span>Scan a Request</span>
+                </Button>
+                <Button className="w-full sm:w-auto" onClick={handleManualRefresh} variant="outline">
+                    <span>Refresh Table</span>
+                </Button>
+            </div>
+
+            <div className="overflow-x-auto">
+                <DataTable columns={columns} data={requests} searchKeys={[]} isLoading={loading} className="w-full" />
+            </div>
+
+            <ScannerDialog
+                isOpen={isRequestScannerOpen}
+                onClose={() => setIsRequestScannerOpen(false)}
+                onScanSuccess={(scannedRequestId) => {
+                    requests.forEach((request) => {
+                        if (request.request_id === Number(scannedRequestId)) {
+                            setSelectedRequest(request);
+                            return;
+                        }
+                    });
+                    setIsViewOpen(true);
+                    setIsRequestScannerOpen(false);
+                }}
+            />
+
+            <ViewRequestDetails
+                isOpen={isViewOpen}
+                onClose={() => setIsViewOpen(false)}
+                request={selectedRequest}
+                onSubmitStatus={handleStatusUpdateCall}
+                isSubmitting={isSubmitting}
+                refresh={fetchRequests}
+                isMobile={isMobile}
             />
         </div>
-
-        <ScannerDialog
-            isOpen={isRequestScannerOpen}
-            onClose={() => setIsRequestScannerOpen(false)}
-            onScanSuccess={(scannedRequestId) => {
-                requests.forEach((request) => {
-                    if (request.request_id === Number(scannedRequestId)) {
-                        setSelectedRequest(request);
-                        return;
-                    }
-                });
-                setIsViewOpen(true);
-                setIsRequestScannerOpen(false)
-            }}
-        />
-
-        <ViewRequestDetails
-            isOpen={isViewOpen}
-            onClose={() => setIsViewOpen(false)}
-            request={selectedRequest}
-            onSubmitStatus={handleStatusUpdateCall}
-            isSubmitting={isSubmitting}
-            refresh={fetchRequests}
-            isMobile={isMobile}
-        />
-    </div>
-);
+    );
 };
 
 export default RequestTransaction;

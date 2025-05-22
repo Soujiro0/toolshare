@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\ItemUnitResource;
+use Carbon\Carbon;
 
 class BorrowRequestItemResource extends JsonResource
 {
@@ -11,17 +12,16 @@ class BorrowRequestItemResource extends JsonResource
     {
         return [
             'request_item_id' => $this->request_item_id,
-            // 'request_id' => $this->request_id,
             'request' => new BorrowRequestResource($this->request),
-            // 'unit' => new ItemUnitResource($this->whenLoaded('unit')),
-            'unit' => new ItemUnitResource($this->unit), // no whenLoaded
+            'unit' => new ItemUnitResource($this->unit),
             'item_condition_out' => $this->item_condition_out,
             'item_condition_in' => $this->item_condition_in,
             'damage_status' => $this->damage_status,
             'damage_notes' => $this->damage_notes,
-            'returned_date' => \Carbon\Carbon::parse($this->returned_date)->toIso8601String(),
-            'created_at' => \Carbon\Carbon::parse($this->created_at)->toIso8601String(),
-            'updated_at' => \Carbon\Carbon::parse($this->updated_at)->toIso8601String(),
+            'request_date' => $this->request_date ? Carbon::parse($this->request_date)->toIso8601String() : null,
+            'returned_date' => $this->returned_date ? Carbon::parse($this->returned_date)->toIso8601String() : null,
+            'created_at' => $this->created_at ? Carbon::parse($this->created_at)->toIso8601String() : null,
+            'updated_at' => $this->updated_at ? Carbon::parse($this->updated_at)->toIso8601String() : null,
         ];
     }
 }

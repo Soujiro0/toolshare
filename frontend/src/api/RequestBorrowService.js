@@ -102,4 +102,3 @@ export async function deleteRequest(requestId) {
         throw error;
     }
 }
-

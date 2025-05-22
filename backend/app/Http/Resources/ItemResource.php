@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
 class ItemResource extends JsonResource
 {
@@ -17,12 +18,12 @@ class ItemResource extends JsonResource
             'unit' => $this->unit,
             'image_url' => $this->image_path ? url('storage/' . $this->image_path) : null,
             'borrowed_count' => $this->borrowed_count,
-            'acquisition_date' => \Carbon\Carbon::parse($this->acquisition_date)->toIso8601String(),
+            'acquisition_date' => $this->acquisition_date ? Carbon::parse($this->acquisition_date)->toIso8601String() : null,
             'category' => new ItemCategoryResource($this->whenLoaded('category')),
             'item_units_count' => $itemUnitsCount,
             'item_units' => ItemUnitResource::collection($itemUnits),
-            'date_created' => \Carbon\Carbon::parse($this->date_created)->toIso8601String(),
-            'date_updated' => \Carbon\Carbon::parse($this->date_updated)->toIso8601String(),
+            'date_created' => $this->date_created ? Carbon::parse($this->date_created)->toIso8601String() : null,
+            'date_updated' => $this->date_updated ? Carbon::parse($this->date_updated)->toIso8601String() : null,
         ];
     }
 }

@@ -118,6 +118,14 @@ class BorrowRequestItemController extends Controller
                 ->whereIn('unit_id', $unitIdsToUpdate)
                 ->update(['status' => 'IN_USE']);
 
+            // Update request status to 'CLAIMED'
+            DB::table('tbl_borrow_requests')
+                ->where('request_id', $request_id)
+                ->update([
+                    'status' => 'CLAIMED',
+                    'processed_date' => now()->toDateTimeString()
+                ]);
+
             DB::commit();
 
             return response()->json([
@@ -286,17 +294,19 @@ class BorrowRequestItemController extends Controller
                     ->where('unit_id', $unit_id)
                     ->first();
 
+
+                // Skip if item already has a return date
+                if ($existingItem && $existingItem->returned_date) {
+                    continue;
+                }
+
                 // Only update return date if it's not already set
                 $updateData = [
                     'damage_status' => $damage_status,
                     'damage_notes' => $damage_notes,
-                    'item_condition_in' => $this->mapDamageStatusToCondition($damage_status)
+                    'item_condition_in' => $this->mapDamageStatusToCondition($damage_status),
+                    'returned_date' => now()->toDateTimeString() // Format the timestamp
                 ];
-
-                // Add returned_date only if it's not already set
-                if (!$existingItem || !$existingItem->returned_date) {
-                    $updateData['returned_date'] = now();
-                }
 
                 // Update borrow request item with return info
                 DB::table('tbl_borrow_request_items')
