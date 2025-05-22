@@ -19,6 +19,8 @@ export const AuthProvider = ({ children }) => {
         return { token: null, user: null };
     });
 
+    const [userDetails, setUserDetails] = useState({});
+
     // On initial load, check if a token is saved in localStorage
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -34,6 +36,19 @@ export const AuthProvider = ({ children }) => {
         }
 
         console.log("Auth: ", auth);
+
+        // const fetchUser = async () => {
+        //     try {
+        //         const res = await ApiService.UserService.getUser(auth.user?.user_id);
+        //         setUserDetails(res.data);
+        //     } catch (error) {
+        //         console.log("error fetching user", error);
+        //     }
+        // }
+
+        // fetchUser();
+        
+        console.log("User Details", userDetails);
     }, []);
 
     // Login: Save the token and update auth state
@@ -56,7 +71,7 @@ export const AuthProvider = ({ children }) => {
     const isAuthenticated = !!auth.token;
 
     return (
-        <AuthContext.Provider value={{ auth, login, logout, isAuthenticated }}>
+        <AuthContext.Provider value={{ auth, login, logout, isAuthenticated, userDetails, setUserDetails }}>
             {children}
         </AuthContext.Provider>
     );

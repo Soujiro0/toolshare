@@ -11,6 +11,7 @@ class UserResource extends JsonResource
     {
         return [
             'user_id' => $this->user_id,
+            // 'profile_image' => $this->profile_path ? url('storage/' . $this->profile_path) : null,
             'username' => $this->username,
             'name' => $this->name,
             'email' => $this->email,

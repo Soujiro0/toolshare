@@ -58,6 +58,7 @@ export const exportUnitsToExcel = async (units) => {
 
   worksheet.columns = [
     { header: "Property No", key: "property_no", width: 20 },
+    
   ];
 
   for (let i = 0; i < units.length; i++) {

@@ -8,7 +8,7 @@ import LoginForm from "../components/forms/LoginForm";
 import { AuthContext } from "../context/AuthContext";
 
 const Landing = () => {
-    const { login } = useContext(AuthContext);
+    const { login, setUserDetails } = useContext(AuthContext);
     const navigate = useNavigate();
     const [clickCount, setClickCount] = useState(0);
     const [showDialog, setShowDialog] = useState(false);
@@ -65,12 +65,22 @@ const Landing = () => {
         isLoading(true);
         try {
             const response = await ApiService.LoginService.loginApi(username, password);
-            console.log(response);
+            console.log("API Response:", response);
+
             login(response.token);
-            switch (response.user.role) {
+
+            const role = response?.user?.role;
+            if (!role) {
+                throw new Error("User role not found in the response.");
+            }
+
+            console.log("user id",  response?.user?.id);
+                
+            const resUser = await ApiService.UserService.getUser(response.user?.id);
+            setUserDetails(resUser.data);
+        
+            switch (role) {
                 case "SUPER_ADMIN":
-                    navigate("/admin-dashboard");
-                    break;
                 case "ADMIN":
                     navigate("/admin-dashboard");
                     break;
@@ -81,7 +91,7 @@ const Landing = () => {
                     navigate("/");
             }
         } catch (error) {
-            alert(error.message);
+            alert(error.message || "Login failed.");
         } finally {
             isLoading(false);
         }

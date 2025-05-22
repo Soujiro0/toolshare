@@ -143,7 +143,7 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
         <>
             <Toaster richColors position="top-center" expand />
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="w-[95%] sm:w-[90%] h-[95vh] p-4 lg:p-6" width="90%">
+                <DialogContent className="w-[100%] sm:w-[90%] h-[95vh] p-4 lg:p-6" width="90%">
                     <DialogHeader>
                         <DialogTitle>Request Details</DialogTitle>
                     </DialogHeader>

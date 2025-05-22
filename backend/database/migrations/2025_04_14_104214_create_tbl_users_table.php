@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('user_id'); // Primary key, BIGINT, UNSIGNED, AUTO_INCREMENT
 
             $table->string('username', 255)->unique();
+            // $table->string('profile_path')->nullable();
             $table->string('name', 100);
             $table->string('password', 255);
             $table->string('email', 255)->unique();

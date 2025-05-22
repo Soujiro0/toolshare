@@ -111,7 +111,7 @@ const AddItemDialog = ({ isOpen, onClose, onSave, categories }) => {
                 });
             }}
         >
-            <DialogContent className="w-[95%] sm:w-[90%] h-[90vh] p-4 lg:p-6" width="90%">
+            <DialogContent className="w-[100%] sm:w-[90%] h-[90vh] p-2 py-4 lg:p-6" width="90%">
                 <DialogHeader>
                     <DialogTitle>Add New Item</DialogTitle>
                 </DialogHeader>

@@ -12,11 +12,11 @@ export const getItemUnitHistoryColumn = (isMobile, handlers = {}, excludeKeys = 
         {
             accessorKey: "request.user.name",
             header: "Borrower",
-            cell: ({ row }) => (
-                <div className="whitespace-normal break-words">
-                    {row.getValue("request.user.name")}
-                </div>
-            ),
+            // cell: ({ row }) => (
+            //     <div className="whitespace-normal break-words">
+            //         {row.getValue("request.user.name")}
+            //     </div>
+            // ),
             sortable: true,
         },
         {
@@ -32,7 +32,7 @@ export const getItemUnitHistoryColumn = (isMobile, handlers = {}, excludeKeys = 
                     CLAIMED: "bg-blue-500 text-white",
                     RETURNED: "bg-gray-300 text-black",
                 }[status] || "outline";
-                return <Badge className={badgeVariant}>{status}</Badge>;
+                return <Badge className={`${badgeVariant} text-[10px]`}>{status}</Badge>;
             },
         },
         {

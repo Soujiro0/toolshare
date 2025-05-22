@@ -67,7 +67,7 @@ const AddUserDialog = ({ isOpen, onClose, onSave, roles }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="lg:w-[50%] w-[90%] h-fit p-4 lg:p-6" width="90%">
+            <DialogContent className="lg:w-[50%] w-[100%] h-fit p-4 lg:p-6" width="90%">
                 <DialogHeader>
                     <DialogTitle>Add User</DialogTitle>
                 </DialogHeader>
