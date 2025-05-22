@@ -13,7 +13,7 @@ class DashboardController extends Controller
 {
     /**
      * Get dashboard statistics
-     * 
+     *
      * @return JsonResponse
      */
     public function getStats(): JsonResponse
@@ -26,11 +26,11 @@ class DashboardController extends Controller
             'inUseUnits' => ItemUnitModel::where('status', 'IN_USE')->count(),
             'maintenanceUnits' => ItemUnitModel::where('status', 'UNDER_MAINTENANCE')->count(),
 
-            'approvedToday' => BorrowRequestModel::where('status', 'APPROVED')
+            'approvedToday' => BorrowRequestModel::where('status', '!=', 'PENDING')
                 ->whereDate('updated_at', $today)
                 ->count(),
 
-            'approvedThisWeek' => BorrowRequestModel::where('status', 'APPROVED')
+            'approvedThisWeek' => BorrowRequestModel::whereNot('status', 'PENDING')
                 ->whereBetween('updated_at', [$weekStart, Carbon::now()])
                 ->count(),
 
@@ -55,7 +55,7 @@ class DashboardController extends Controller
 
     /**
      * Get Most Borrowed Items
-     * 
+     *
      * @return JsonResponse
      */
     public function getMostBorrowedItems()

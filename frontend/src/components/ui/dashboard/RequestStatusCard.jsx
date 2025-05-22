@@ -30,51 +30,51 @@ const RequestStatusCard = ({ requests = [], isLoading }) => {
         }));
     };
 
-useEffect(() => {
-    if (!requests?.length) return;
+    useEffect(() => {
+        if (!requests?.length) return;
 
-    // Create array of all dates in range
-    const dateArray = [];
-    const currentDate = new Date(dates.from);
-    const endDate = new Date(dates.to);
-    endDate.setHours(23, 59, 59, 999); // Set end date to end of day
+        // Create array of all dates in range
+        const dateArray = [];
+        const currentDate = new Date(dates.from);
+        const endDate = new Date(dates.to);
+        endDate.setHours(23, 59, 59, 999); // Set end date to end of day
 
-    while (currentDate <= endDate) {
-        dateArray.push(new Date(currentDate).toISOString().split("T")[0]);
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    // Filter requests based on date range and user role
-    const filteredRequests = requests.filter((request) => {
-        const requestDate = new Date(request.request_date);
-        const isInDateRange = requestDate >= new Date(dates.from) && requestDate <= endDate;
-
-        // Show all requests for admin/superadmin, filter only for instructor
-        if (auth.user?.role === "INSTRUCTOR") {
-            return isInDateRange && request.user?.user_id === auth.user?.user_id;
+        while (currentDate <= endDate) {
+            dateArray.push(new Date(currentDate).toISOString().split("T")[0]);
+            currentDate.setDate(currentDate.getDate() + 1);
         }
-        return isInDateRange; // For ADMIN and SUPERADMIN show all requests
-    });
 
-    // Calculate stats from filtered requests
-    const stats = filteredRequests.reduce(
-        (acc, request) => {
-            if (request.status) {
-                acc[request.status] = (acc[request.status] || 0) + 1;
+        // Filter requests based on date range and user role
+        const filteredRequests = requests.filter((request) => {
+            const requestDate = new Date(request.request_date);
+            const isInDateRange = requestDate >= new Date(dates.from) && requestDate <= endDate;
+
+            // Show all requests for admin/superadmin, filter only for instructor
+            if (auth.user?.role === "INSTRUCTOR") {
+                return isInDateRange && request.user?.user_id === auth.user?.user_id;
             }
-            return acc;
-        },
-        {
-            PENDING: 0,
-            APPROVED: 0,
-            REJECTED: 0,
-            CLAIMED: 0,
-            RETURNED: 0,
-        }
-    );
+            return isInDateRange; // For ADMIN and SUPERADMIN show all requests
+        });
 
-    setFilteredStats(stats);
-}, [requests, dates, auth.user]);
+        // Calculate stats from filtered requests
+        const stats = filteredRequests.reduce(
+            (acc, request) => {
+                if (request.status) {
+                    acc[request.status] = (acc[request.status] || 0) + 1;
+                }
+                return acc;
+            },
+            {
+                PENDING: 0,
+                APPROVED: 0,
+                REJECTED: 0,
+                CLAIMED: 0,
+                RETURNED: 0,
+            }
+        );
+
+        setFilteredStats(stats);
+    }, [requests, dates, auth.user]);
 
     const statusColors = {
         PENDING: "bg-yellow-400 text-black",
@@ -85,36 +85,23 @@ useEffect(() => {
     };
 
     return (
-        <Card>
-            <CardHeader className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 pb-2">
-                <div className="flex justify-between">
-                    <div className="space-y-2">
-                        <CardTitle>Request Status Overview</CardTitle>
-                        <CardDescription>Distribution of requests by status</CardDescription>
-                    </div>
-                    {isLoading && <LoaderCircle className="animate-spin" />}
+    <Card>
+        <CardHeader className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 pb-2">
+            <div className="flex-1">
+                <div className="space-y-2">
+                    <CardTitle>Request Status Overview</CardTitle>
+                    <CardDescription>Distribution of requests by status</CardDescription>
                 </div>
+                {isLoading && <LoaderCircle className="animate-spin mt-2" />}
+                            
                 {!isLoading && (
-                    <div className="flex flex-col sm:flex-row gap-2">
-                        <Input 
-                            type="date" 
-                            name="from" 
-                            value={dates.from} 
-                            onChange={handleDateChange} 
-                            icon={faCalendar}
-                            max={dates.to} 
-                        />
-                        <Input 
-                            type="date" 
-                            name="to" 
-                            value={dates.to} 
-                            onChange={handleDateChange} 
-                            icon={faCalendar}
-                            min={dates.from}
-                        />
-                    </div>
+                <div className="flex-1 flex flex-col sm:flex-row sm:justify-start gap-2">
+                    <Input type="date" name="from" value={dates.from} onChange={handleDateChange} icon={faCalendar} max={dates.to} />
+                    <Input type="date" name="to" value={dates.to} onChange={handleDateChange} icon={faCalendar} min={dates.from} />
+                </div>
                 )}
-            </CardHeader>
+            </div>
+        </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {Object.entries(filteredStats).map(([status, count]) => (

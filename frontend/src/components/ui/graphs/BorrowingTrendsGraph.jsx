@@ -7,10 +7,10 @@ import { useEffect, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const BorrowingTrendsGraph = ({ data = [], isLoading }) => {
-    const [dates, setDates] = useState({
-        from: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split("T")[0],
-        to: new Date().toISOString().split("T")[0],
-    });
+const [dates, setDates] = useState({
+    from: new Date(new Date().setDate(new Date().getDate() - 7)).toLocaleDateString('en-CA'),
+    to: new Date().toLocaleDateString('en-CA'),
+});
 
     const [filteredData, setFilteredData] = useState([]);
 
@@ -47,13 +47,16 @@ const BorrowingTrendsGraph = ({ data = [], isLoading }) => {
         setFilteredData(filtered);
     }, [data, dates]);
 
-    const formatXAxis = (tickItem) => {
-        const date = new Date(tickItem);
-        return date.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-        });
-    };
+const formatXAxis = (tickItem) => {
+    // Parse the date string and create a new Date object
+    const [year, month, day] = tickItem.split('-');
+    const date = new Date(year, month - 1, day);  // month is 0-indexed in Date constructor
+    
+    return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric"
+    });
+};
 
     return (
         <Card className="col-span-full">

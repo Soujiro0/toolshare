@@ -18,7 +18,7 @@ const UserRequestMetricsCard = ({ todayRequests, weekRequests, isLoading }) => {
             <CardContent>
                 <div className="space-y-4">
                     <div>
-                        <Label>{"Today's Requests"}</Label>
+                        <Label>{"Today's Approved Requests"}</Label>
                         <p className="text-2xl font-bold">{isLoading ? "--" : todayRequests}</p>
                     </div>
                     <div>

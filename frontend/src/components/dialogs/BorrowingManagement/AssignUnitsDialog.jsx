@@ -91,9 +91,27 @@ const AssignUnitsDialog = ({ isOpen, onClose, request, onSelect, preselectedUnit
                     <ScrollArea className="h-[60vh] md:h-[700px] pr-2 space-y-4 md:space-y-6">
                         {itemsWithUnits.map((item, index) => (
                             <div key={item.item_id} className="space-y-2 flex flex-col mb-2 md:mb-4 border p-2 md:p-4 rounded-md">
-                                <Label className="font-semibold text-sm md:text-base">
-                                    Item {index + 1}: {item.name}
-                                </Label>
+                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                                    <Label className="font-semibold text-sm md:text-base">
+                                        Item {index + 1}: {item.name}
+                                    </Label>
+                                    <div className="flex flex-col md:flex-row gap-2 md:items-center text-sm">
+                                        <div className="text-muted-foreground">
+                                            Requested: <span className="font-medium">{item.requested_quantity}</span>
+                                        </div>
+                                        <div className={`${
+                                            item.item_units.filter(u => u.checked).length > item.requested_quantity 
+                                            ? 'text-red-500' 
+                                            : item.item_units.filter(u => u.checked).length === item.requested_quantity 
+                                            ? 'text-green-500' 
+                                            : 'text-amber-500'
+                                        }`}>
+                                            Selected: <span className="font-medium">
+                                                {item.item_units.filter(u => u.checked).length}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div className="overflow-x-auto">
                                     <DataTable

@@ -12,6 +12,7 @@ const Landing = () => {
     const navigate = useNavigate();
     const [clickCount, setClickCount] = useState(0);
     const [showDialog, setShowDialog] = useState(false);
+    const [loading, isLoading] = useState(false);
     const [config, setConfig] = useState({
         ip: "",
         port: "",
@@ -22,6 +23,7 @@ const Landing = () => {
         return () => {
             if (clickTimer) clearTimeout(clickTimer);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleSecretClick = () => {
@@ -60,6 +62,7 @@ const Landing = () => {
     };
 
     const handleSubmit = async ({ username, password }) => {
+        isLoading(true);
         try {
             const response = await ApiService.LoginService.loginApi(username, password);
             console.log(response);
@@ -79,6 +82,8 @@ const Landing = () => {
             }
         } catch (error) {
             alert(error.message);
+        } finally {
+            isLoading(false);
         }
     };
 
@@ -91,7 +96,7 @@ const Landing = () => {
                 <p className="font-medium text-xs sm:text-sm md:text-base">Tools & Equipment Borrowing System</p>
             </div>
             <div className="w-full sm:w-auto flex justify-center">
-                <LoginForm handleSubmit={handleSubmit} />
+                <LoginForm handleSubmit={handleSubmit} isLoading={loading} />
             </div>
 
             <Dialog open={showDialog} onOpenChange={setShowDialog}>

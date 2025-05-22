@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useDebounce } from "@/hooks/useDebounce";
+import { formatDateTime } from "@/lib/utils";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 
@@ -115,7 +116,13 @@ export const getReturnCheckColumns = (isMobile, handlers = {}, excludeKeys = [])
 
                         <div className="space-y-2">
                             <Label className="text-sm font-medium">Return Date:</Label>
-                            <p className="text-sm">{row.original.returned_date ?? "Not Returned"}</p>
+                            <p className="text-sm text-muted-foreground">
+                                {row.original.returned_date ? (
+                                    formatDateTime(new Date(row.original.returned_date))
+                                ) : (
+                                    <span className="italic">Not Returned</span>
+                                )}
+                            </p>
                         </div>
                     </div>
                 );
@@ -211,7 +218,10 @@ export const getReturnCheckColumns = (isMobile, handlers = {}, excludeKeys = [])
             accessorFn: (row) => row.returned_date,
             header: "Return Date",
             sortable: true,
-            cell: ({ getValue }) => getValue() ?? "Not Returned",
+            cell: ({ getValue }) => {
+                const value = getValue();
+                return value ? formatDateTime(value) : <span className="text-gray-400 italic">Not Returned</span>;
+            },
         },
     ];
 

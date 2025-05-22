@@ -314,10 +314,13 @@ class BorrowRequestItemController extends Controller
                     ->where('unit_id', $unit_id)
                     ->update($updateData);
 
-                // Mark unit as available again in tbl_item_units
+                // Set status based on damage_status
+                $newStatus = $damage_status === 'DAMAGED' ? 'UNDER_MAINTENANCE' : 'AVAILABLE';
+
+                // Update unit status in tbl_item_units
                 DB::table('tbl_item_units')
                     ->where('unit_id', $unit_id)
-                    ->update(['status' => 'AVAILABLE']);
+                    ->update(['status' => $newStatus]);
             }
 
             // Commit the transaction
