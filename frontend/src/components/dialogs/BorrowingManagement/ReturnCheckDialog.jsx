@@ -112,7 +112,7 @@ const ReturnCheckDialog = ({ isOpen, onClose, request, units, onReturn }) => {
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="w-[95%] sm:w-[90%] h-[95vh] p-4 lg:p-6" width="90%">
+                <DialogContent className="w-[100%] sm:w-[90%] h-[95vh] p-4 lg:p-6" width="90%">
                     <DialogHeader>
                         <DialogTitle className="text-base sm:text-lg">Return Check for {request.requested_by}</DialogTitle>
 

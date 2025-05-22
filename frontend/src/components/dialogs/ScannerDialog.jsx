@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 const SCAN_COOLDOWN_MS = 1000; // 2 seconds
 
-export const ScannerDialog = ({ isOpen, onClose, onScanSuccess }) => {
+export const ScannerDialog = ({ isOpen, onClose, onScanSuccess, scannerTitle = "" }) => {
     const isCooldownRef = useRef(false);
 
     const handleSuccess = useCallback(
@@ -35,7 +35,7 @@ export const ScannerDialog = ({ isOpen, onClose, onScanSuccess }) => {
             qrCodeSuccessCallback: handleSuccess,
             qrCodeErrorCallback: handleError,
             fps: 10,
-            qrbox: 300,
+            qrbox: 200,
             disableFlip: false,
         }),
         [handleSuccess, handleError]
@@ -45,9 +45,9 @@ export const ScannerDialog = ({ isOpen, onClose, onScanSuccess }) => {
         <>
             <Toaster richColors position="top-center" expand={true} />
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="w-[95%] sm:w-[90%] h-[90vh] p-4 lg:p-6" width="90%">
+                <DialogContent className="w-[100%] sm:w-[90%] h-auto p-4 lg:p-6" width="90%">
                     <DialogHeader>
-                        <DialogTitle>Scan To Assign Items</DialogTitle>
+                        <DialogTitle>{scannerTitle}</DialogTitle>
                     </DialogHeader>
 
                     <QRScanner {...scannerProps} />

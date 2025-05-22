@@ -6,7 +6,7 @@ use App\Models\UserModel;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
-
+use Exception;
 class UserController extends Controller
 {
     /**
@@ -22,6 +22,22 @@ class UserController extends Controller
         ], 200);
     }
 
+    protected function handleImageUpload(Request $request)
+    {
+        if (!$request->hasFile('image')) {
+            return null;
+        }
+
+        $file = $request->file('image');
+
+        if (!$file->isValid()) {
+            throw new Exception('Uploaded file is not valid.');
+        }
+
+        // Store in 'public/items' folder and return just the path
+        return $file->store('items', 'public');
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -29,6 +45,7 @@ class UserController extends Controller
     {
         try {
             $request->validate([
+                // 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'username' => 'required|string|unique:tbl_users,username',
                 'name' => 'required|string',
                 'email' => 'required|email|unique:tbl_users,email',
@@ -36,7 +53,22 @@ class UserController extends Controller
                 'role_id' => 'required|integer|exists:tbl_roles,role_id'
             ]);
 
+            // Prepare image URL if file present
+            // $imageUrl = null;
+            // if ($request->hasFile('image')) {
+            //     try {
+            //         $imageUrl = $this->handleImageUpload($request);
+            //     } catch (Exception $e) {
+            //         return response()->json([
+            //             'success' => false,
+            //             'message' => 'Error uploading image.',
+            //             'error' => $e->getMessage()
+            //         ], 500);
+            //     }
+            // }
+
             $data = $request->all();
+            // $data['profile_path'] = $imageUrl;
             $data['password'] = bcrypt($data['password']);
             $data['date_created'] = now();
             $data['last_updated'] = now();

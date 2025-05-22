@@ -1,13 +1,11 @@
 import ApiService from "@/api/ApiService";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AuthContext } from "@/context/AuthContext";
 import PropTypes from "prop-types";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export const UserDetailDialog = ({ isOpen, onClose, user, onEdit, onDelete }) => {
-    const { auth } = useContext(AuthContext);
     const [isCheckingDelete, setIsCheckingDelete] = useState(false);
 
     if (!user) return null;
@@ -18,22 +16,24 @@ export const UserDetailDialog = ({ isOpen, onClose, user, onEdit, onDelete }) =>
     };
 
     const canDeleteUser = async () => {
+        const userRole = user.role.role_name;
+
         // If user is instructor, only super admin can delete
-        if (user.role === "INSTRUCTOR") {
-            return auth.user.role === "SUPER_ADMIN";
+        if (userRole === "INSTRUCTOR") {
+            return true; // Let the backend handle permissions
         }
 
         // Admin cannot delete their account
-        if (user.role === "ADMIN") {
+        if (userRole === "ADMIN") {
             return false;
         }
 
         // Super admin can delete their account only if another super admin exists
-        if (user.role === "SUPER_ADMIN") {
+        if (userRole === "SUPER_ADMIN") {
             try {
                 const response = await ApiService.UserService.getUsers();
                 const superAdmins = response.data.filter(u => 
-                    u.role === "SUPER_ADMIN" && u.user_id !== user.user_id
+                    u.role.role_name === "SUPER_ADMIN" && u.user_id !== user.user_id
                 );
                 return superAdmins.length > 0;
             } catch (error) {
@@ -50,9 +50,9 @@ export const UserDetailDialog = ({ isOpen, onClose, user, onEdit, onDelete }) =>
         const canDelete = await canDeleteUser();
         
         if (!canDelete) {
-            if (user.role === "ADMIN") {
+            if (user.role.role_name === "ADMIN") {
                 toast.error("Admin accounts cannot be deleted");
-            } else if (user.role === "SUPER_ADMIN") {
+            } else if (user.role.role_name === "SUPER_ADMIN") {
                 toast.error("Cannot delete the last super admin account");
             } else {
                 toast.error("You don't have permission to delete this account");
@@ -65,13 +65,11 @@ export const UserDetailDialog = ({ isOpen, onClose, user, onEdit, onDelete }) =>
         setIsCheckingDelete(false);
     };
 
-    const showDeleteButton = user.role === "INSTRUCTOR" ? 
-        auth.user.role === "SUPER_ADMIN" : 
-        user.role.role_name === "SUPER_ADMIN";
+    const showDeleteButton = user.role?.role_name === "INSTRUCTOR" || user.role?.role_name === "SUPER_ADMIN";
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="lg:w-[50%] w-[90%] h-fit p-4 lg:p-6" width="90%">
+            <DialogContent className="lg:w-[50%] w-[100%] h-fit p-4 lg:p-6" width="90%">
                 <DialogHeader>
                     <DialogTitle>User Details</DialogTitle>
                 </DialogHeader>
@@ -82,7 +80,7 @@ export const UserDetailDialog = ({ isOpen, onClose, user, onEdit, onDelete }) =>
                             <p className="text-sm text-muted-foreground">UID: {user.user_id}</p>
                             <h3 className="text-xl font-semibold">{user.name}</h3>
                             <span className="inline-block px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
-                                {user.role?.replace(/_/g, " ") ?? ""}
+                                {String(user.role?.role_name).replace(/_/g, " ")}
                             </span>
                         </div>
                     </div>

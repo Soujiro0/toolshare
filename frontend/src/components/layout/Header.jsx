@@ -27,7 +27,7 @@ const Header = ({ headerTitle }) => {
     const [showUserDetail, setShowUserDetail] = useState(false);
     const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const { auth, setAuth } = useContext(AuthContext);
+    const { auth, setAuth, userDetails } = useContext(AuthContext);
     const user = auth.user;
 
     const handleEditUser = (user) => {
@@ -68,7 +68,7 @@ const Header = ({ headerTitle }) => {
             <UserDetailDialog
                 isOpen={showUserDetail}
                 onClose={() => setShowUserDetail(false)}
-                user={user}
+                user={userDetails}
                 onEdit={handleEditUser}
                 onDelete={() => {
                     /* Handle delete if needed */

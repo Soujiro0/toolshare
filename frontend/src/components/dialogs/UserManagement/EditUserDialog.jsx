@@ -51,7 +51,7 @@ const EditUserDialog = ({ isOpen, onClose, user, onSave, roles }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="lg:w-[50%] w-[90%] h-fit p-4 lg:p-6" width="90%">
+            <DialogContent className="lg:w-[50%] w-[100%] h-fit p-4 lg:p-6" width="90%">
                 <DialogHeader>
                     <DialogTitle>Edit User (user id: {formData?.user_id})</DialogTitle>
                 </DialogHeader>
@@ -77,7 +77,7 @@ const EditUserDialog = ({ isOpen, onClose, user, onSave, roles }) => {
                                     role_id: parseInt(value),
                                 })
                             }
-                            value={formData?.role?.role_id?.toString() || ""}
+                            value={formData?.role_id?.toString() || ""}
                         >
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select Role" />

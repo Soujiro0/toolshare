@@ -45,7 +45,7 @@ export const ItemDetailDialog = ({ isOpen, onClose, item, onEdit, onDelete, onUp
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="w-[95%] sm:w-[90%] h-[90vh] p-4 lg:p-6" width="">
+                <DialogContent className="w-[100%] sm:w-[90%] h-[90vh] p-2 py-4 lg:p-6" width="">
                     <DialogHeader>
                         <DialogTitle>Item Details</DialogTitle>
                     </DialogHeader>

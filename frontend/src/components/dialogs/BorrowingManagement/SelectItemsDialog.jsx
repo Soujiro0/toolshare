@@ -99,7 +99,7 @@ const SelectItemsDialog = ({ open, onClose, selectedItems, onSelect }) => {
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="w-[95%] lg:w-[50%] lg:h-fit h-[95vh] px-2 py-4 lg:p-6" width="90%">
+            <DialogContent className="w-[100%] lg:w-[50%] lg:h-fit h-[95vh] px-2 py-4 lg:p-6" width="90%">
                 <DialogHeader>
                     <DialogTitle>Select Items to Borrow</DialogTitle>
                 </DialogHeader>

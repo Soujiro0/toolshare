@@ -17,6 +17,23 @@ export async function getUsers() {
     }
 }
 
+export async function getUser(userId) {
+    try {
+        const response = await fetch(`${API_BASE}/users/${userId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        const data = await response.json();
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error("Error fetching user");
+        throw error;
+    }
+}
+
 export async function addUser(userData) {
     try {
         const response = await fetch(`${API_BASE}/users`, {

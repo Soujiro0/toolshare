@@ -11,6 +11,7 @@ class UserModel extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        // 'profile_path',
         'username',
         'name',
         'password',
