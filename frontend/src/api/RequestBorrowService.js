@@ -79,6 +79,7 @@ export async function statusUpdateRequestByAdmin(requestId, updatedData) {
         });
 
         const data = await response.json();
+        console.log("data in Call", data)
         return data;
     } catch (error) {
         console.error("Error Updating Requests", error);

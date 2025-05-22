@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 
 library.add(fas);
 
-const LoginForm = ({ handleSubmit }) => {
+const LoginForm = ({ handleSubmit, isLoading }) => {
     const form = useForm({
         defaultValues: {
             username: "",
@@ -65,8 +65,9 @@ const LoginForm = ({ handleSubmit }) => {
                             customColor={true}
                             size="lg"
                             className="bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-[var(--text-color-light)] w-full h-10 sm:h-12 text-sm sm:text-base"
+                            disabled={isLoading}
                         >
-                            Log In
+                            {isLoading ? <span className="text-muted">Logging In...</span> : <span>Log In</span>}
                         </Button>
                     </form>
                 </Form>
@@ -77,6 +78,7 @@ const LoginForm = ({ handleSubmit }) => {
 
 LoginForm.propTypes = {
     handleSubmit: PropTypes.func.isRequired,
+    isLoading: PropTypes.bool.isRequired,
 };
 
 export default LoginForm;

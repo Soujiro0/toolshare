@@ -23,12 +23,27 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
     const { auth } = useContext(AuthContext);
     const userRole = auth.user?.role;
 
-
     const [assignedItemsMap, setAssignedItemsMap] = useState({});
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showReturnDialog, setShowReturnDialog] = useState(false);
     const [showQrCodeDialog, setShowQrCodeDialog] = useState(false);
 
+    // Add this helper function to check if all items are returned
+    const areAllItemsReturned = () => {
+        if (!request?.assigned_items?.length) return false;
+        return request.assigned_items.every((item) => item.returned_date);
+    };
+
+    // Add this to show return statistics
+    const getReturnStats = () => {
+        if (!request?.assigned_items) return { total: 0, returned: 0, remaining: 0 };
+
+        const total = request.assigned_items.length;
+        const returned = request.assigned_items.filter((item) => item.returned_date).length;
+        const remaining = total - returned;
+
+        return { total, returned, remaining };
+    };
 
     const handleAssignUnits = (requestId, selectedUnits) => {
         setAssignedItemsMap((prev) => ({
@@ -75,17 +90,17 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
     };
 
     const handleReturnSubmitCall = async (payload) => {
-    try {
-        const response = await ApiService.BorrowItemService.returnUnits(payload);
-        console.log("Return check response:", response);
-        toast.success("Items returned successfully");
-        onClose();
-        refresh?.();
-    } catch (error) {
-        console.error("Error returning units:", error);
-        toast.error("Failed to return units");
-    }
-};
+        try {
+            const response = await ApiService.BorrowItemService.returnUnits(payload);
+            console.log("Return check response:", response);
+            toast.success("Items returned successfully");
+            onClose();
+            refresh?.();
+        } catch (error) {
+            console.error("Error returning units:", error);
+            toast.error("Failed to return units");
+        }
+    };
 
     const hasAssignedItems = Array.isArray(request?.assigned_items) && request.assigned_items.length > 0;
 
@@ -133,7 +148,7 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                         <DialogTitle>Request Details</DialogTitle>
                     </DialogHeader>
 
-                    <ScrollArea className="h-[calc(90vh-8rem)]">
+                    <ScrollArea className="h-[calc(85vh-8rem)]">
                         <div className="space-y-4 p-3">
                             {/* Grid layout for cards */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -228,9 +243,9 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                                             <div className="flex items-center justify-between">
                                                 <Label>Assign Items:</Label>
                                                 {!(request.status === "CLAIMED" || request.status === "RETURNED") && (
-                                                <Button size="sm" onClick={() => setShowAssignModal(true)}>
-                                                    Edit Assign Items
-                                                </Button>
+                                                    <Button size="sm" onClick={() => setShowAssignModal(true)}>
+                                                        Edit Assign Items
+                                                    </Button>
                                                 )}
                                             </div>
                                             <div className="rounded-md border">
@@ -247,52 +262,91 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                         </div>
                     </ScrollArea>
 
-                    <DialogFooter className="flex flex-col sm:flex-row gap-2 px-3">
-                        {userRole === "INSTRUCTOR" && (
-                            <Button className="w-full sm:w-auto" onClick={() => setShowQrCodeDialog(true)}>
-                                Generate QR Code
-                            </Button>
-                        )}
-                        {(userRole === "SUPER_ADMIN" || userRole === "ADMIN") && (
-                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                                {request.status === "PENDING" && (
-                                    <>
-                                        <Button onClick={() => handleStatusUpdate("APPROVED")}>{isSubmitting ? "Submitting..." : "APPROVE"}</Button>
-                                        <Button variant="destructive" onClick={() => handleStatusUpdate("REJECTED")}>
-                                            {isSubmitting ? "Submitting..." : "REJECT"}
-                                        </Button>
-                                    </>
-                                )}
-                                {request.status === "APPROVED" && request.assigned_items.length === 0 && (
-                                    <Button
-                                        disabled={!assignedItems.length > 0}
-                                        onClick={() => {
-                                            handleAssignUnitsCall(request.request_id, assignedItems);
-                                        }}
-                                    >
-                                        Confirmed Item Assign
-                                    </Button>
-                                )}
+<DialogFooter className="flex flex-col gap-2 px-3">
+    {userRole === "INSTRUCTOR" && (
+        <Button className="w-full" onClick={() => setShowQrCodeDialog(true)}>
+            Generate QR Code
+        </Button>
+    )}
+    {(userRole === "SUPER_ADMIN" || userRole === "ADMIN") && (
+        <div className="flex flex-col w-full gap-2">
+            {request.status === "PENDING" && (
+                <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                        className="w-full" 
+                        onClick={() => handleStatusUpdate("APPROVED")}
+                    >
+                        {isSubmitting ? "Submitting..." : "APPROVE"}
+                    </Button>
+                    <Button 
+                        className="w-full" 
+                        variant="destructive" 
+                        onClick={() => handleStatusUpdate("REJECTED")}
+                    >
+                        {isSubmitting ? "Submitting..." : "REJECT"}
+                    </Button>
+                </div>
+            )}
+            {request.status === "APPROVED" && request.assigned_items.length === 0 && (
+                <Button
+                    className="w-full"
+                    disabled={!assignedItems.length > 0}
+                    onClick={() => {
+                        handleAssignUnitsCall(request.request_id, assignedItems);
+                    }}
+                >
+                    Confirmed Item Assign
+                </Button>
+            )}
 
-                                {request.status === "APPROVED" && request.assigned_items.length > 0 && (
-                                    <Button disabled={!assignedItems.length} onClick={() => handleStatusUpdate("CLAIMED")}>
-                                        CLAIMED
-                                    </Button>
-                                )}
+            {request.status === "APPROVED" && request.assigned_items.length > 0 && (
+                <Button 
+                    className="w-full"
+                    disabled={!assignedItems.length} 
+                    onClick={() => handleStatusUpdate("CLAIMED")}
+                >
+                    CLAIMED
+                </Button>
+            )}
 
-                                {request.status === "CLAIMED" && (
-                                    <>
-                                        <Button variant="secondary" onClick={() => setShowReturnDialog(true)} disabled={!assignedItems.length}>
-                                            Check Return Items
-                                        </Button>
-                                        <Button disabled={!assignedItems.length} onClick={() => handleStatusUpdate("RETURNED")}>
-                                            RETURN
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                        )}
-                    </DialogFooter>
+            {request.status === "CLAIMED" && (
+                <>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                        <div className="bg-muted p-2 rounded-md text-center">
+                            <p className="text-muted-foreground">Total</p>
+                            <p className="font-medium">{getReturnStats().total}</p>
+                        </div>
+                        <div className="bg-green-100 p-2 rounded-md text-center">
+                            <p className="text-green-600">Returned</p>
+                            <p className="font-medium">{getReturnStats().returned}</p>
+                        </div>
+                        <div className="bg-amber-100 p-2 rounded-md text-center">
+                            <p className="text-amber-600">Remaining</p>
+                            <p className="font-medium">{getReturnStats().remaining}</p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                            className="w-full"
+                            variant="secondary" 
+                            onClick={() => setShowReturnDialog(true)} 
+                            disabled={!assignedItems.length}
+                        >
+                            Check Return Items
+                        </Button>
+                        <Button 
+                            className="w-full"
+                            disabled={!areAllItemsReturned()} 
+                            onClick={() => handleStatusUpdate("RETURNED")}
+                        >
+                            RETURN
+                        </Button>
+                    </div>
+                </>
+            )}
+        </div>
+    )}
+</DialogFooter>
 
                     <RequestQRCodeDialog isOpen={showQrCodeDialog} onClose={() => setShowQrCodeDialog(false)} requestId={request.request_id} />
 
@@ -305,13 +359,13 @@ const ViewRequestDetails = ({ isOpen, onClose, request, onSubmitStatus, isSubmit
                         isMobile={isMobile}
                     />
 
-                    <ReturnCheckDialog 
-    isOpen={showReturnDialog} 
-    onClose={() => setShowReturnDialog(false)} 
-    request={request}
-    units={request.assigned_items}
-    onReturn={handleReturnSubmitCall}
-/>
+                    <ReturnCheckDialog
+                        isOpen={showReturnDialog}
+                        onClose={() => setShowReturnDialog(false)}
+                        request={request}
+                        units={request.assigned_items}
+                        onReturn={handleReturnSubmitCall}
+                    />
                 </DialogContent>
             </Dialog>
         </>

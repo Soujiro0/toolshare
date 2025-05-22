@@ -30,9 +30,9 @@ Route::apiResource('item-units', ItemUnitController::class);
 
 Route::apiResource('borrow-requests', BorrowRequestController::class);
 
-Route::get('borrow-requests/last-update', [
+Route::put('/borrow-requests-status/{id}', [
     BorrowRequestController::class,
-    'getLastUpdateTime'
+    'updateRequestStatus'
 ]);
 
 Route::put('/borrow-requests-details/{id}', [
