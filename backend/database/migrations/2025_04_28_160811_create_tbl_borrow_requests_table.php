@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('tbl_borrow_requests', function (Blueprint $table) {
             $table->bigIncrements('request_id');
-            $table->bigInteger('user_id')->unsigned();
+            $table->string('user_id');
             $table->enum('status', ['PENDING', 'APPROVED', 'REJECTED', 'CLAIMED', 'RETURNED'])->default('PENDING');
             $table->text('purpose')->nullable();
             $table->text('remarks')->nullable();
-            $table->bigInteger('handled_by')->unsigned()->nullable();
+            $table->string('handled_by')->nullable();
             $table->timestamp('request_date')->useCurrent();
             $table->timestamp('return_date')->nullable();
             $table->timestamp('processed_date')->nullable();
