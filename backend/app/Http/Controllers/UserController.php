@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Exception;
+use App\Helpers\UserHelper;
+
 class UserController extends Controller
 {
     /**
@@ -14,28 +16,21 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = UserModel::with('role')->get();
-        return response()->json([
-            'message' => 'Items retrieved successfully.',
-            'total' => $users->count(),
-            'data' => UserResource::collection($users)
-        ], 200);
-    }
-
-    protected function handleImageUpload(Request $request)
-    {
-        if (!$request->hasFile('image')) {
-            return null;
+        try {
+            $users = UserModel::with('role')->get();
+            return response()->json([
+                'success' => true,
+                'message' => 'Users retrieved successfully',
+                'total' => $users->count(),
+                'data' => UserResource::collection($users)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving users',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $file = $request->file('image');
-
-        if (!$file->isValid()) {
-            throw new Exception('Uploaded file is not valid.');
-        }
-
-        // Store in 'public/items' folder and return just the path
-        return $file->store('items', 'public');
     }
 
     /**
@@ -45,7 +40,6 @@ class UserController extends Controller
     {
         try {
             $request->validate([
-                // 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'username' => 'required|string|unique:tbl_users,username',
                 'name' => 'required|string',
                 'email' => 'required|email|unique:tbl_users,email',
@@ -53,36 +47,21 @@ class UserController extends Controller
                 'role_id' => 'required|integer|exists:tbl_roles,role_id'
             ]);
 
-            // Prepare image URL if file present
-            // $imageUrl = null;
-            // if ($request->hasFile('image')) {
-            //     try {
-            //         $imageUrl = $this->handleImageUpload($request);
-            //     } catch (Exception $e) {
-            //         return response()->json([
-            //             'success' => false,
-            //             'message' => 'Error uploading image.',
-            //             'error' => $e->getMessage()
-            //         ], 500);
-            //     }
-            // }
-
             $data = $request->all();
-            // $data['profile_path'] = $imageUrl;
+            $data['user_id'] = UserHelper::generateCustomUserId();
             $data['password'] = bcrypt($data['password']);
-            $data['date_created'] = now();
-            $data['last_updated'] = now();
 
             $user = UserModel::create($data);
 
             return response()->json([
-                'message' => 'User created successfully.',
+                'success' => true,
+                'message' => 'User created successfully',
                 'data' => new UserResource($user->load('role'))
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Error creating user.',
+                'success' => false,
+                'message' => 'Error creating user',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -97,11 +76,13 @@ class UserController extends Controller
             $user = UserModel::with('role')->findOrFail($id);
 
             return response()->json([
-                'message' => 'Item retrieved successfully.',
+                'success' => true,
+                'message' => 'User retrieved successfully',
                 'data' => new UserResource($user)
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'No user found',
                 'error' => $e->getMessage()
             ], 500);
@@ -114,12 +95,11 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            // Validate the incoming request
             $request->validate([
                 'username' => 'required|string|unique:tbl_users,username,' . $id . ',user_id',
                 'name' => 'required|string',
                 'email' => 'required|email|unique:tbl_users,email,' . $id . ',user_id',
-                'password' => 'nullable|string|min:8', // Make password optional
+                'password' => 'nullable|string|min:8',
                 'role_id' => 'required|integer|exists:tbl_roles,role_id'
             ]);
 
@@ -133,19 +113,21 @@ class UserController extends Controller
 
             if ($request->has('password')) {
                 return response()->json([
-                    'message' => 'User password updated successfully.',
+                    'success' => true,
+                    'message' => 'User updated details and password successfully',
                     'data' => new UserResource($user->load('role'))
                 ], 200);
             }
 
             return response()->json([
-                'message' => 'User details updated successfully.',
+                'success' => true,
+                'message' => 'User details updated successfully',
                 'data' => new UserResource($user->load('role'))
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'An unexpected error occurred.',
+                'success' => false,
+                'message' => 'An unexpected error occurred upon updating user',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -160,10 +142,12 @@ class UserController extends Controller
             $user = UserModel::findOrFail($id);
             $user->delete();
             return response()->json([
+                'success' => true,
                 'message' => 'User deleted successfully.'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'No user found',
                 'error' => $e->getMessage()
             ], 500);

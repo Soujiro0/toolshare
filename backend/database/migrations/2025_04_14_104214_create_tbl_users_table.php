@@ -12,18 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tbl_users', function (Blueprint $table) {
-            $table->bigIncrements('user_id'); // Primary key, BIGINT, UNSIGNED, AUTO_INCREMENT
-
+            // $table->bigIncrements('user_id');
+            $table->string('user_id')->primary(); // custom user ID
             $table->string('username', 255)->unique();
-            // $table->string('profile_path')->nullable();
             $table->string('name', 100);
             $table->string('password', 255);
             $table->string('email', 255)->unique();
 
-            $table->unsignedInteger('role_id'); // INT UNSIGNED
+            $table->unsignedInteger('role_id');
 
-            $table->timestamp('date_created')->useCurrent();
-            $table->timestamp('last_updated')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
 
             $table->foreign('role_id')
                 ->references('role_id')

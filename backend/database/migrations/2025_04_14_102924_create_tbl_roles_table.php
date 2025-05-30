@@ -12,13 +12,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tbl_roles', function (Blueprint $table) {
-            $table->increments('role_id')->unsigned();;
+            $table->increments('role_id')->unsigned();
             $table->string('role_name');
-            $table->timestamp('date_created')->useCurrent();
-            $table->timestamp('last_updated')->useCurrent()->useCurrentOnUpdate();
+
+            $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.

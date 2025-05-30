@@ -18,7 +18,7 @@ class AuthService
         $this->algorithm = 'HS256';
     }
 
-    public function generateToken(int $userId, string $name, string $role): string
+    public function generateToken(string $userId, string $name, string $role): string
     {
         $issuedAt = time();
         $expire = $issuedAt + 3600;

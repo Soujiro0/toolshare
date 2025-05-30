@@ -8,17 +8,16 @@ class UserModel extends Model
 {
     protected $table = 'tbl_users';
     protected $primaryKey = 'user_id';
-    public $timestamps = false;
+    public $incrementing = false; // <== important
+    protected $keyType = 'string'; // <== important
 
     protected $fillable = [
-        // 'profile_path',
+        'user_id',
         'username',
         'name',
         'password',
         'email',
         'role_id',
-        'date_created',
-        'last_updated'
     ];
 
     public function borrowRequests()
