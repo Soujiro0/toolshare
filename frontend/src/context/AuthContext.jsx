@@ -1,19 +1,20 @@
+import ApiService from "@/api/ApiService";
 import { jwtDecode } from "jwt-decode";
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from "react";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+
     const [auth, setAuth] = useState(() => {
-        // Load from localStorage on first render
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (token) {
             try {
                 return { token, user: jwtDecode(token) };
             } catch (error) {
-                console.error('Invalid token:', error);
-                localStorage.removeItem('token');
+                console.error("Invalid token:", error);
+                localStorage.removeItem("token");
             }
         }
         return { token: null, user: null };
@@ -21,60 +22,56 @@ export const AuthProvider = ({ children }) => {
 
     const [userDetails, setUserDetails] = useState({});
 
-    // On initial load, check if a token is saved in localStorage
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (token) {
             try {
                 const decoded = jwtDecode(token);
                 console.log("Decoded: ", decoded);
                 setAuth({ token, user: decoded });
             } catch (error) {
-                console.error('Token decode failed:', error);
-                localStorage.removeItem('token');
+                console.error("Token decode failed:", error);
+                localStorage.removeItem("token");
             }
         }
-
         console.log("Auth: ", auth);
-
-        // const fetchUser = async () => {
-        //     try {
-        //         const res = await ApiService.UserService.getUser(auth.user?.user_id);
-        //         setUserDetails(res.data);
-        //     } catch (error) {
-        //         console.log("error fetching user", error);
-        //     }
-        // }
-
-        // fetchUser();
-        
-        console.log("User Details", userDetails);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Login: Save the token and update auth state
-    const login = (token) => {
+    useEffect(() => {
+        if (auth.user?.user_id) {
+            fetchUser(auth.user.user_id);
+        }
+    }, [auth.user?.user_id]);
+
+    const fetchUser = async (userId) => {
         try {
-            const decoded = jwtDecode(token);
-            localStorage.setItem('token', token);
-            setAuth({ token, user: decoded });
+            const res = await ApiService.UserService.getUser(userId);
+            setUserDetails(res.data);
         } catch (error) {
-            console.error('Failed to login:', error);
+            console.error("Error fetching user", error);
         }
     };
 
-    // Logout: Clear token from localStorage and reset state
+    const login = (token) => {
+        try {
+            const decoded = jwtDecode(token);
+            localStorage.setItem("token", token);
+            setAuth({ token, user: decoded });
+        } catch (error) {
+            console.error("Failed to login:", error);
+        }
+    };
+
     const logout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem("token");
         setAuth({ token: null, user: null });
+        setUserDetails({});
     };
 
     const isAuthenticated = !!auth.token;
 
-    return (
-        <AuthContext.Provider value={{ auth, login, logout, isAuthenticated, userDetails, setUserDetails }}>
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={{ auth, login, logout, isAuthenticated, userDetails, setUserDetails }}>{children}</AuthContext.Provider>;
 };
 
 AuthProvider.propTypes;

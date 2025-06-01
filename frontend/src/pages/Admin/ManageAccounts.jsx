@@ -8,121 +8,74 @@ import DataTable from "@/components/tables/DataTable";
 import { getUserColumns } from "@/components/tables/UserManagement/UserColumn";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { ROLES } from "@/constants/roles";
+import { useApiHandler } from "@/hooks/useApiHandler";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-
-const ROLES = [
-    {
-        role_id: 1,
-        role_name: "SUPER_ADMIN",
-    },
-    {
-        role_id: 2,
-        role_name: "ADMIN",
-    },
-    {
-        role_id: 3,
-        role_name: "INSTRUCTOR",
-    },
-];
 
 const ManageAccounts = () => {
+    const { handleApiAction, isloading } = useApiHandler();
     const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [userDetailDialogOpen, setUserDetailDialogOpen] = useState(false);
-    const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
-    const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
-    const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+    const [dialog, setDialog] = useState({ type: null, user: null });
+    const openDialog = (type, user = null) => setDialog({ type, user });
+    const closeDialog = () => setDialog({ type: null, user: null });
 
-    const handleViewUserDetails = (user) => {
-        if (user) {
-            setSelectedUser(user);
-            setUserDetailDialogOpen(true);
-        }
+    const fetchUsers = () => {
+        handleApiAction({
+            apiCall: () => ApiService.UserService.getUsers(),
+            afterSuccess: (response) => setUsers(response.data),
+        });
     };
 
-    const handleCloseUserDetail = () => {
-        setUserDetailDialogOpen(false);
-        setSelectedUser(null);
+    const handleAddUserCall = (userData) => {
+        handleApiAction({
+            apiCall: () => ApiService.UserService.addUser(userData),
+            successMessage: {
+                title: "User Created",
+                description: () => `Added user ${userData.user_id} to database`,
+            },
+            errorMessage: {
+                toastMessage: "Error adding user",
+                consoleMessage: "Error adding user:",
+            },
+            onFinally: () => {
+                fetchUsers(), closeDialog();
+            },
+        });
     };
 
-    const handleEditUser = (user) => {
-        setSelectedUser(user);
-        setUserDetailDialogOpen(false);
-        setEditUserDialogOpen(true);
+    const handleEditUserCall = (userData) => {
+        handleApiAction({
+            apiCall: () => ApiService.UserService.updateUser(dialog.user.user_id, userData),
+            successMessage: {
+                title: "User Updated",
+                description: () => `Updated user ${userData.user_id}`,
+            },
+            errorMessage: {
+                toastMessage: "Error updating user",
+                consoleMessage: "Error updating user:",
+            },
+            onFinally: fetchUsers,
+        });
     };
 
-    const handleDeleteUser = (user) => {
-        setSelectedUser(user);
-        setUserDetailDialogOpen(false);
-        setDeleteUserDialogOpen(true);
+    const handleDeleteUserCall = (userId) => {
+        handleApiAction({
+            apiCall: () => ApiService.UserService.deleteUser(userId),
+            successMessage: {
+                title: "User Deleted",
+                description: () => `Deleted user ${userId}`,
+            },
+            errorMessage: {
+                toastMessage: "Error deleting user",
+                consoleMessage: "Error deleting user:",
+            },
+            onFinally: fetchUsers,
+        });
     };
 
-    const fetchUsers = async () => {
-        setLoading(true);
-        try {
-            const response = await ApiService.UserService.getUsers();
-            setUsers(response.data);
-        } catch (error) {
-            console.error("Error fetching items:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleAddUserCall = async (userData) => {
-        console.log(userData);
-        try {
-            const response = await ApiService.UserService.addUser(userData);
-            console.log(response);
-            // Success toast here
-            toast.success("CREATED user successfully", {
-                description: `Added user ${userData.user_id} to Database`,
-            });
-        } catch (error) {
-            console.error("Error adding item:", error);
-            toast.error("Error adding item");
-        } finally {
-            fetchUsers();
-        }
-    };
-
-    const handleEditUserCall = async (userData) => {
-        console.log(userData);
-        try {
-            const response = await ApiService.UserService.updateUser(selectedUser.user_id, userData);
-            console.log(response);
-            // Success toast here
-            toast.success("UPDATED user successfully", {
-                description: `Updated user ${userData.user_id} to Database`,
-            });
-        } catch (error) {
-            console.error("Error updating item:", error);
-            toast.error("Error updating item");
-        } finally {
-            fetchUsers();
-        }
-    };
-
-    const handleDeleteUserCall = async (userId) => {
-        console.log(userId);
-        try {
-            const response = await ApiService.UserService.deleteUser(userId);
-            console.log(response);
-            // Success toast here
-            toast.success("DELETED user successfully", {
-                description: `Deleted user ${userId} to Database`,
-            });
-        } catch (error) {
-            console.error("Error deleting item:", error);
-            toast.error("Error deleting item");
-        } finally {
-            fetchUsers();
-        }
-    };
+    const isMobile = useMediaQuery("(max-width: 768px)");
 
     const filters = [
         {
@@ -130,76 +83,56 @@ const ManageAccounts = () => {
             key: "role.role_name",
             type: "select",
             values: ROLES.map((e) => ({
-                label: e.role_name.replace(/_/g, " "), // e.g., "SUPER ADMIN"
-                value: e.role_name, // e.g., "SUPER_ADMIN"
+                label: e.role_name.replace(/_/g, " "),
+                value: e.role_name,
             })),
         },
     ];
 
-    const isMobile = useMediaQuery("(max-width: 768px)");
-
     const columns = getUserColumns(isMobile, {
-        onViewUserDetails: handleViewUserDetails,
+        onViewUserDetails: (user) => openDialog("view", user),
+        onEditUser: (user) => openDialog("edit", user),
+        onDeleteUser: (user) => openDialog("delete", user),
     });
 
     useEffect(() => {
         fetchUsers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
-    <div className="px-1 sm:px-2 lg:px-2 py-2 sm:py-2 space-y-4 sm:space-y-2">
+        <div className="px-1 sm:px-2 lg:px-2 py-2 sm:py-2 space-y-4 sm:space-y-2">
             <Toaster richColors position="top-center" expand={true} />
             <Header headerTitle="Manage Accounts" />
 
             <div className="flex flex-col sm:flex-row items-center justify-end gap-4 mb-4">
-                <Button 
-                    className="w-full sm:w-auto" 
-                    onClick={() => setAddUserDialogOpen(true)}
-                >
-                    <Plus className="h-4 w-4 mr-2" />
+                <Button className="w-full sm:w-auto" onClick={() => openDialog("add")}>
                     <span>Add New User</span>
+                    <Plus />
                 </Button>
             </div>
 
             <div className="overflow-x-auto">
-                <DataTable 
-                    columns={columns} 
-                    data={users} 
-                    searchKeys={["name"]} 
-                    filters={filters} 
-                    isLoading={loading}
-                    className="w-full"
-                />
+                <DataTable columns={columns} data={users} searchKeys={["name"]} filters={filters} isLoading={isloading} />
             </div>
 
             <UserDetailDialog
-                isOpen={userDetailDialogOpen}
-                onClose={handleCloseUserDetail}
-                user={selectedUser}
-                onEdit={handleEditUser}
-                onDelete={handleDeleteUser}
+                isOpen={dialog.type === "view"}
+                onClose={closeDialog}
+                onEdit={() => openDialog("edit", dialog.user)}
+                onDelete={() => openDialog("delete", dialog.user)}
+                user={dialog.user}
             />
 
-            <AddUserDialog 
-                isOpen={addUserDialogOpen} 
-                onClose={() => setAddUserDialogOpen(false)} 
-                onSave={handleAddUserCall} 
-                roles={ROLES} 
-            />
-            
-            <EditUserDialog
-                isOpen={editUserDialogOpen}
-                onClose={() => setEditUserDialogOpen(false)}
-                user={selectedUser}
-                onSave={handleEditUserCall}
-                roles={ROLES}
-            />
+            <AddUserDialog isOpen={dialog.type === "add"} onClose={closeDialog} onSave={handleAddUserCall} roles={ROLES} />
+
+            <EditUserDialog isOpen={dialog.type === "edit"} onClose={closeDialog} onSave={handleEditUserCall} user={dialog.user} roles={ROLES} />
 
             <DeleteUserDialog
-                isOpen={deleteUserDialogOpen}
-                onClose={() => setDeleteUserDialogOpen(false)}
-                user={selectedUser}
-                onDelete={handleDeleteUserCall}
+                isOpen={dialog.type === "delete"}
+                onClose={closeDialog}
+                onDelete={() => handleDeleteUserCall(dialog.user?.user_id)}
+                user={dialog.user}
             />
         </div>
     );
