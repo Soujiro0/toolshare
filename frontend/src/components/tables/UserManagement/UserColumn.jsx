@@ -1,6 +1,4 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDateTime } from "@/lib/utils";
 import { Eye } from "lucide-react";
 
 export const getUserColumns = (isMobile, handlers = {}, excludeKeys = []) => {
@@ -70,34 +68,26 @@ export const getUserColumns = (isMobile, handlers = {}, excludeKeys = []) => {
             header: "User Role",
             sortable: true,
             cell: ({ getValue }) => {
-                const role = getValue();
-
-                const badgeVariant =
-                {
-                    SUPER_ADMIN: "bg-purple-700",
-                    ADMIN: "bg-blue-700",
-                    INSTRUCTOR: "bg-green-700",
-                }[role] || "outline";
-
-                return <Badge className={`${badgeVariant} break-words whitespace-normal`}>{role?.replace("_", " ")}</Badge>
+                const value = getValue();
+                return value ? value.replace(/_/g, " ") : <span className="text-gray-400 italic">N/A</span>;
             },
         },
         {
-            accessorKey: "created_at",
+            accessorKey: "date_created",
             header: "Date Created",
             sortable: true,
             cell: ({ getValue }) => {
                 const value = getValue();
-                return value ? formatDateTime(value) : <span className="text-gray-400 italic">N/A</span>;
+                return value ? value : <span className="text-gray-400 italic">N/A</span>;
             },
         },
         {
-            accessorKey: "updated_at",
+            accessorKey: "last_updated",
             header: "Last Update",
             sortable: true,
             cell: ({ getValue }) => {
                 const value = getValue();
-                return value ? formatDateTime(value) : <span className="text-gray-400 italic">N/A</span>;
+                return value ? value : <span className="text-gray-400 italic">N/A</span>;
             },
         },
         {
@@ -111,7 +101,7 @@ export const getUserColumns = (isMobile, handlers = {}, excludeKeys = []) => {
                         {handlers.onViewUserDetails && (
                             <Button onClick={() => handlers.onViewUserDetails(user)}>
                                 <span className="hidden md:inline">View</span>
-                                <Eye />
+                                <Eye className="h-4 w-4 md:ml-2" />
                             </Button>
                         )}
                     </div>

@@ -23,7 +23,7 @@ const getServerConfig = () => {
     }
     // Default configuration
     return {
-        SERVER_IP: '127.0.0.1',
+        SERVER_IP: '192.168.100.13',
         SERVER_PORT: '8000'
     };
 };

@@ -4,7 +4,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
-import { LoaderCircle } from "lucide-react";
 import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
 
@@ -25,7 +24,7 @@ const LoginForm = ({ handleSubmit, isLoading }) => {
     return (
         <Card className="w-[90vw] sm:w-[350px] shadow-lg border-blue-200">
             <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="text-left">
+                <CardTitle className="text-left mb-3 sm:mb-5">
                     <h1 className="text-2xl sm:text-3xl font-bold text-[var(--primary-color)] mb-1">Log In</h1>
                     <p className="text-sm sm:text-base font-medium">Access your account</p>
                 </CardTitle>
@@ -68,13 +67,7 @@ const LoginForm = ({ handleSubmit, isLoading }) => {
                             className="bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-[var(--text-color-light)] w-full h-10 sm:h-12 text-sm sm:text-base"
                             disabled={isLoading}
                         >
-                            {isLoading ? (
-                                <span className="text-muted flex items-center gap-2">
-                                    Logging In <LoaderCircle className="animate-spin" />
-                                </span>
-                            ) : (
-                                <span>Log In</span>
-                            )}
+                            {isLoading ? <span className="text-muted">Logging In...</span> : <span>Log In</span>}
                         </Button>
                     </form>
                 </Form>

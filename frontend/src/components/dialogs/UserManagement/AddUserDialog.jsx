@@ -3,20 +3,11 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MAX_PASS_LENGTH, MIN_PASS_LENGTH } from "@/constants/passwordLength";
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-const validateEmail = (email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
-const validatePassword = (password) => password.length >= MIN_PASS_LENGTH && password.length <= MAX_PASS_LENGTH;
-
-const FormField = ({ label, children, error }) => (
-    <div className="flex flex-col gap-2">
-        <Label>{label}</Label>
-        {children}
-        {error && <span className="text-red-500 text-sm">{error}</span>}
-    </div>
-);
+const MIN_PASS_LENGTH = 8;
+const MAX_PASS_LENGTH = 16;
 
 const AddUserDialog = ({ isOpen, onClose, onSave, roles }) => {
     const [formData, setFormData] = useState({
@@ -28,21 +19,23 @@ const AddUserDialog = ({ isOpen, onClose, onSave, roles }) => {
     });
     const [errors, setErrors] = useState({});
 
-    // Reset form on open/close
-    useEffect(() => {
-        if (!isOpen) {
-            setFormData({ username: "", name: "", email: "", password: "", role_id: "" });
-            setErrors({});
-        }
-    }, [isOpen]);
-
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleRoleChange = (value) => {
-        setFormData((prev) => ({ ...prev, role_id: value }));
+        setFormData({ ...formData, role_id: value });
+    };
+
+    // Email validation regex
+    const validateEmail = (email) => {
+        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return regex.test(email);
+    };
+
+    // Password validation (example: at least 6 characters)
+    const validatePassword = (password) => {
+        return password.length >= MIN_PASS_LENGTH; // You can adjust the length requirement as needed
     };
 
     const validateForm = () => {
@@ -57,7 +50,7 @@ const AddUserDialog = ({ isOpen, onClose, onSave, roles }) => {
         if (!formData.password) {
             newErrors.password = "Password is required";
         } else if (!validatePassword(formData.password)) {
-            newErrors.password = `Password must be between ${MIN_PASS_LENGTH} and ${MAX_PASS_LENGTH} characters`;
+            newErrors.password = `Password must be at least ${MIN_PASS_LENGTH} characters long. Max of ${MAX_PASS_LENGTH} characters`;
         }
         if (!formData.role_id) newErrors.role_id = "Role is required";
 
@@ -68,26 +61,34 @@ const AddUserDialog = ({ isOpen, onClose, onSave, roles }) => {
     const handleSubmit = () => {
         if (validateForm()) {
             onSave(formData);
+            onClose();
         }
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
+            <DialogContent className="lg:w-[50%] w-[100%] h-fit p-4 lg:p-6" width="90%">
                 <DialogHeader>
                     <DialogTitle>Add User</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                    <FormField label="Username" error={errors.username}>
+                    <div className="flex flex-col gap-2">
+                        <Label>Username</Label>
                         <Input name="username" placeholder="e.g. adminaccount123" value={formData.username} onChange={handleChange} />
-                    </FormField>
-                    <FormField label="Name" error={errors.name}>
+                        {errors.username && <span className="text-red-500 text-sm">{errors.username}</span>}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Label>Name</Label>
                         <Input name="name" placeholder="e.g. Juan Dela Cruz" value={formData.name} onChange={handleChange} />
-                    </FormField>
-                    <FormField label="Email" error={errors.email}>
+                        {errors.name && <span className="text-red-500 text-sm">{errors.name}</span>}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Label>Email</Label>
                         <Input name="email" placeholder="e.g. email@example.com" value={formData.email} onChange={handleChange} />
-                    </FormField>
-                    <FormField label={`Password (${MIN_PASS_LENGTH} - ${MAX_PASS_LENGTH} characters)`} error={errors.password}>
+                        {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Label>Password (8 - 16 characters)</Label>
                         <Input
                             name="password"
                             type="password"
@@ -96,27 +97,29 @@ const AddUserDialog = ({ isOpen, onClose, onSave, roles }) => {
                             onChange={handleChange}
                             maxLength={MAX_PASS_LENGTH}
                         />
-                    </FormField>
-                    <FormField label="Role" error={errors.role_id}>
-                        <Select value={formData.role_id} onValueChange={handleRoleChange}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select Role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {roles.map((role) => (
-                                    <SelectItem key={role.role_id} value={role.role_id.toString()}>
-                                        {role.role_name.replace(/_/g, " ")}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </FormField>
+                        {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
+                    </div>
+
+                    {/* ShadCN Select Component for Role Selection */}
+                    <div className="flex flex-col gap-2">
+                        <Label>Role</Label>
+                    <Select onValueChange={handleRoleChange}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select Role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {roles.map((role) => (
+                                <SelectItem key={role.role_id} value={role.role_id.toString()}>
+                                    {role.role_name.replace(/_/g, " ")}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {errors.role_id && <span className="text-red-500 text-sm">{errors.role_id}</span>}
+                    </div>
                 </div>
                 <DialogFooter>
                     <Button onClick={handleSubmit}>Add</Button>
-                    <Button variant="outline" onClick={onClose}>
-                        Cancel
-                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -128,12 +131,6 @@ AddUserDialog.propTypes = {
     onClose: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     roles: PropTypes.array.isRequired,
-};
-
-FormField.propTypes = {
-    label: PropTypes.string,
-    children: PropTypes.node,
-    error: PropTypes.string,
 };
 
 export default AddUserDialog;
