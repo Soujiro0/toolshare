@@ -13,11 +13,15 @@ class ItemCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('tbl_item_category')->insert([
+        $categories = [
             ['category_name' => 'Tools'],
             ['category_name' => 'Equipment'],
             ['category_name' => 'Personal Protective Equipment'],
             ['category_name' => 'Materials']
-        ]);
+        ];
+
+        foreach ($categories as $category) {
+            DB::table('tbl_item_category')->insert($category);
+        }
     }
 }

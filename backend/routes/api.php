@@ -21,9 +21,9 @@ Route::apiResource('categories', ItemCategoryController::class);
 
 Route::apiResource('items', ItemController::class);
 
-Route::post('/items-with-units', [
+Route::post('/add-item-units', [
     ItemController::class,
-    'storeWithUnits'
+    'storeItemWithItemUnits'
 ]);
 
 Route::apiResource('item-units', ItemUnitController::class);
