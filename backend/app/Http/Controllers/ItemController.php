@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\ImageUploadHelper;
 
 class ItemController extends Controller
 {
@@ -60,7 +61,7 @@ class ItemController extends Controller
             $request->validate([
                 'name' => 'required|string',
                 'category_id' => 'required|integer|exists:tbl_item_category,category_id',
-                'unit' => 'required|string|max:20',
+                'unit_of_measure' => 'required|string|max:20',
                 'acquisition_date' => 'nullable|date',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
@@ -70,7 +71,8 @@ class ItemController extends Controller
 
             // Handle image upload
             if ($request->hasFile('image')) {
-                $data['image_url'] = $this->handleImageUpload($request);
+                $imagePath = ImageUploadHelper::handle($request, 'image', 'items');
+                $data['image_url'] = $imagePath;
             }
 
             $item = ItemModel::create($data);
@@ -119,14 +121,14 @@ class ItemController extends Controller
             $request->validate([
                 'name' => 'required|string',
                 'category_id' => 'required|integer|exists:tbl_item_category,category_id',
-                'unit' => 'required|string|max:20',
+                'unit_of_measure' => 'required|string|max:20',
                 'acquisition_date' => 'nullable|date',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'remove_image' => 'nullable|boolean'  // Add this validation rule
             ]);
 
             $item = ItemModel::findOrFail($id);
-            $data = $request->only(['name', 'category_id', 'unit', 'acquisition_date']);
+            $data = $request->only(['name', 'category_id', 'unit_of_measure', 'acquisition_date']);
 
             // Handle image removal
             if ($request->boolean('remove_image')) {
@@ -142,7 +144,8 @@ class ItemController extends Controller
                 if ($item->image_path) {
                     Storage::disk('public')->delete($item->image_path);
                 }
-                $data['image_path'] = $this->handleImageUpload($request);
+                $imagePath = ImageUploadHelper::handle($request, 'image', 'items');
+                $data['image_url'] = $imagePath;
             }
 
             $item->update($data);
@@ -170,6 +173,7 @@ class ItemController extends Controller
             $item = ItemModel::findOrFail($id);
             $item->delete();
             return response()->json([
+                'success' => true,
                 'message' => 'Item deleted successfully.'
             ], 200);
         } catch (Exception $e) {
@@ -184,21 +188,21 @@ class ItemController extends Controller
     /**
      * Create a new item with single/multiple units.
      */
-    public function storeWithUnits(Request $request)
+    public function storeItemWithItemUnits(Request $request)
     {
         try {
             $request->validate([
                 'name' => 'required|string',
                 'category_id' => 'required|integer|exists:tbl_item_category,category_id',
-                'unit' => 'required|string|max:20',
+                'unit_of_measure' => 'required|string|max:20',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'acquisition_date' => 'nullable|date',
-                'units' => 'required|array|min:1',
-                'units.*.brand' => 'nullable|string|max:100',
-                'units.*.model' => 'nullable|string|max:100',
-                'units.*.specification' => 'nullable|string',
-                'units.*.item_condition' => 'required|in:EXCELLENT,GOOD,FAIR,POOR',
-                'units.*.quantity' => 'required|integer|min:1',
+                'item_units' => 'required|array|min:1',
+                'item_units.*.brand' => 'nullable|string|max:100',
+                'item_units.*.model' => 'nullable|string|max:100',
+                'item_units.*.specification' => 'nullable|string',
+                'item_units.*.item_condition' => 'required|in:EXCELLENT,GOOD,FAIR,POOR',
+                'item_units.*.quantity' => 'required|integer|min:1',
             ]);
 
             // Check if the item already exists by name
@@ -208,7 +212,8 @@ class ItemController extends Controller
             $imageUrl = null;
             if ($request->hasFile('image')) {
                 try {
-                    $imageUrl = $this->handleImageUpload($request);
+                    $imagePath = ImageUploadHelper::handle($request, 'image', 'items');
+                    $imageUrl = $imagePath;
                 } catch (Exception $e) {
                     return response()->json([
                         'success' => false,
@@ -223,7 +228,7 @@ class ItemController extends Controller
                 $itemData = [
                     'name' => $request->name,
                     'category_id' => $request->category_id,
-                    'unit' => $request->unit,
+                    'unit_of_measure' => $request->unit_of_measure,
                     'acquisition_date' => $request->acquisition_date,
                 ];
 
@@ -256,16 +261,16 @@ class ItemController extends Controller
             // Step 3: Loop and create units
             $unitData = [];
 
-            foreach ($request->units as $unit) {
-                for ($i = 0; $i < $unit['quantity']; $i++) {
+            foreach ($request->item_units as $item_unit) {
+                for ($i = 0; $i < $item_unit['quantity']; $i++) {
                     $suffix++;
                     $unitData[] = [
                         'item_id' => $item->item_id,
                         'property_no' => sprintf("%d-%03d", $item->item_id, $suffix),
-                        'brand' => $unit['brand'] ?? null,
-                        'model' => $unit['model'] ?? null,
-                        'specification' => $unit['specification'] ?? null,
-                        'item_condition' => $unit['item_condition'],
+                        'brand' => $item_unit['brand'] ?? null,
+                        'model' => $item_unit['model'] ?? null,
+                        'specification' => $item_unit['specification'] ?? null,
+                        'item_condition' => $item_unit['item_condition'],
                         'status' => 'AVAILABLE',
                         'date_acquired' => $request->acquisition_date,
                         'created_at' => now(),

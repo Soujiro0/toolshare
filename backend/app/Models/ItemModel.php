@@ -8,17 +8,14 @@ class ItemModel extends Model
 {
     protected $table = 'tbl_items';
     protected $primaryKey = 'item_id';
-    public $timestamps = false;
 
     protected $fillable = [
         'name',
         'category_id',
-        'unit',
+        'unit_of_measure',
         'image_path',
         'acquisition_date',
         'borrowed_count',
-        'date_created',
-        'date_updated'
     ];
 
     public function category()
