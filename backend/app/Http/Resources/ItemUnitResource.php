@@ -11,15 +11,17 @@ class ItemUnitResource extends JsonResource
     {
         return [
             'unit_id' => $this->unit_id,
-            'item_id' => $this->item_id,
+            'item' => new ItemResource($this->item),
             'property_no' => $this->property_no,
             'brand' => $this->brand,
             'model' => $this->model,
             'specification' => $this->specification,
             'item_condition' => $this->item_condition,
-            'status' => $this->status,
+            'availability_status' => $this->availability_status,
+            'operational_status' => $this->operational_status,
             'date_acquired' => $this->date_acquired ? Carbon::parse($this->date_acquired)->toIso8601String() : null,
-            'item' => new ItemResource($this->item),
+            'created_at' => $this->created_at ? Carbon::parse($this->created_at)->toIso8601String() : null,
+            'updated_at' => $this->updated_at ? Carbon::parse($this->updated_at)->toIso8601String() : null,
         ];
     }
 }

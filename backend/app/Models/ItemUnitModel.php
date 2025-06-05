@@ -16,7 +16,8 @@ class ItemUnitModel extends Model
         'model',
         'specification',
         'item_condition',
-        'status',
+        'availability_status',
+        'operational_status',
         'date_acquired'
     ];
 

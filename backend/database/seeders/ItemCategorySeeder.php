@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\ItemCategoryModel;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class ItemCategorySeeder extends Seeder
 {
@@ -13,6 +12,9 @@ class ItemCategorySeeder extends Seeder
      */
     public function run(): void
     {
+
+        $now = now();
+
         $categories = [
             ['category_name' => 'Tools'],
             ['category_name' => 'Equipment'],
@@ -20,8 +22,11 @@ class ItemCategorySeeder extends Seeder
             ['category_name' => 'Materials']
         ];
 
-        foreach ($categories as $category) {
-            DB::table('tbl_item_category')->insert($category);
-        }
+        // Add timestamps
+        $categories = array_map(function ($category) use ($now) {
+            return array_merge($category, ['created_at' => $now, 'updated_at' => $now]);
+        }, $categories);
+
+        ItemCategoryModel::insert($categories);
     }
 }

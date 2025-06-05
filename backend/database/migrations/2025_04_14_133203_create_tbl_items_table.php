@@ -17,10 +17,8 @@ return new class extends Migration
             $table->unsignedInteger('category_id');
             $table->string('unit_of_measure', 20);
             $table->string('image_path')->nullable();
-            $table->date('acquisition_date')->nullable();
             $table->integer('borrowed_count')->default(0);
 
-            // Explicit timestamp columns
             $table->timestamps();
 
             // Foreign key constraint
