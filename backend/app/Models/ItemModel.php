@@ -14,7 +14,6 @@ class ItemModel extends Model
         'category_id',
         'unit_of_measure',
         'image_path',
-        'acquisition_date',
         'borrowed_count',
     ];
 

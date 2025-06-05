@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Exception;
 use App\Helpers\UserHelper;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserController extends Controller
 {
@@ -20,14 +21,14 @@ class UserController extends Controller
             $users = UserModel::with('role')->get();
             return response()->json([
                 'success' => true,
-                'message' => 'Users retrieved successfully',
+                'message' => 'Users retrieved successfully.',
                 'total' => $users->count(),
                 'data' => UserResource::collection($users)
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error retrieving users',
+                'message' => 'Error retrieving users.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -55,13 +56,13 @@ class UserController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'User created successfully',
+                'message' => 'User created successfully.',
                 'data' => new UserResource($user->load('role'))
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error creating user',
+                'message' => 'Error creating user.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -77,13 +78,19 @@ class UserController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'User retrieved successfully',
+                'message' => 'User retrieved successfully.',
                 'data' => new UserResource($user)
             ], 200);
-        } catch (\Exception $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'No user found',
+                'error' => $e->getMessage()
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving user',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -145,10 +152,16 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'User deleted successfully.'
             ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No user found.',
+                'error' => $e->getMessage()
+            ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'No user found',
+                'message' => 'Error deleting user.',
                 'error' => $e->getMessage()
             ], 500);
         }

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\ImageUploadHelper;
+use App\Helpers\ItemUnitHelper;
 
 class ItemController extends Controller
 {
@@ -36,22 +37,6 @@ class ItemController extends Controller
         }
     }
 
-    protected function handleImageUpload(Request $request)
-    {
-        if (!$request->hasFile('image')) {
-            return null;
-        }
-
-        $file = $request->file('image');
-
-        if (!$file->isValid()) {
-            throw new Exception('Uploaded file is not valid.');
-        }
-
-        // Store in 'public/items' folder and return just the path
-        return $file->store('items', 'public');
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -62,14 +47,11 @@ class ItemController extends Controller
                 'name' => 'required|string',
                 'category_id' => 'required|integer|exists:tbl_item_category,category_id',
                 'unit_of_measure' => 'required|string|max:20',
-                'acquisition_date' => 'nullable|date',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
 
-            // Only take needed fields
-            $data = $request->only(['name', 'category_id', 'unit', 'acquisition_date']);
+            $data = $request->only(['name', 'category_id', 'unit_of_measure']);
 
-            // Handle image upload
             if ($request->hasFile('image')) {
                 $imagePath = ImageUploadHelper::handle($request, 'image', 'items');
                 $data['image_url'] = $imagePath;
@@ -79,7 +61,7 @@ class ItemController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Item created successfully',
+                'message' => 'Item created successfully.',
                 'data' => new ItemResource($item->load('category'))
             ], 201);
         } catch (Exception $e) {
@@ -106,9 +88,15 @@ class ItemController extends Controller
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'No item found',
+                'message' => 'No item found.',
                 'error' => $e->getMessage()
             ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving item.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -122,25 +110,21 @@ class ItemController extends Controller
                 'name' => 'required|string',
                 'category_id' => 'required|integer|exists:tbl_item_category,category_id',
                 'unit_of_measure' => 'required|string|max:20',
-                'acquisition_date' => 'nullable|date',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                'remove_image' => 'nullable|boolean'  // Add this validation rule
+                'remove_image' => 'nullable|boolean'
             ]);
 
             $item = ItemModel::findOrFail($id);
-            $data = $request->only(['name', 'category_id', 'unit_of_measure', 'acquisition_date']);
+            $data = $request->only(['name', 'category_id', 'unit_of_measure']);
 
-            // Handle image removal
             if ($request->boolean('remove_image')) {
                 if ($item->image_path) {
                     Storage::disk('public')->delete($item->image_path);
-                    $data['image_path'] = null;  // Set image_path to null
+                    $data['image_path'] = null;
                 }
             }
 
-            // Handle image upload
             if ($request->hasFile('image')) {
-                // Delete old image if exists
                 if ($item->image_path) {
                     Storage::disk('public')->delete($item->image_path);
                 }
@@ -176,6 +160,12 @@ class ItemController extends Controller
                 'success' => true,
                 'message' => 'Item deleted successfully.'
             ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No item found.',
+                'error' => $e->getMessage()
+            ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -196,7 +186,6 @@ class ItemController extends Controller
                 'category_id' => 'required|integer|exists:tbl_item_category,category_id',
                 'unit_of_measure' => 'required|string|max:20',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                'acquisition_date' => 'nullable|date',
                 'item_units' => 'required|array|min:1',
                 'item_units.*.brand' => 'nullable|string|max:100',
                 'item_units.*.model' => 'nullable|string|max:100',
@@ -229,7 +218,6 @@ class ItemController extends Controller
                     'name' => $request->name,
                     'category_id' => $request->category_id,
                     'unit_of_measure' => $request->unit_of_measure,
-                    'acquisition_date' => $request->acquisition_date,
                 ];
 
                 // Change image_url to image_path
@@ -248,31 +236,26 @@ class ItemController extends Controller
                 $item->update(['image_path' => str_replace(url('storage/'), '', $imageUrl)]);
             }
 
-            // Step 2: Get last used property_no suffix
-            $lastUnit = ItemUnitModel::where('item_id', $item->item_id)
-                ->orderByDesc('unit_id')
-                ->first();
-
-            $suffix = 0;
-            if ($lastUnit && preg_match('/\d{3}$/', $lastUnit->property_no, $matches)) {
-                $suffix = (int) $matches[0];
-            }
+            // Step 2: Generate property numbers for all units
+            $totalUnits = array_sum(array_column($request->item_units, 'quantity'));
+            $propertyNumbers = ItemUnitHelper::generatePropertyNumbers($item->item_id, $totalUnits);
 
             // Step 3: Loop and create units
             $unitData = [];
+            $index = 0;
 
             foreach ($request->item_units as $item_unit) {
                 for ($i = 0; $i < $item_unit['quantity']; $i++) {
-                    $suffix++;
                     $unitData[] = [
                         'item_id' => $item->item_id,
-                        'property_no' => sprintf("%d-%03d", $item->item_id, $suffix),
+                        'property_no' => $propertyNumbers[$index++],
                         'brand' => $item_unit['brand'] ?? null,
                         'model' => $item_unit['model'] ?? null,
                         'specification' => $item_unit['specification'] ?? null,
                         'item_condition' => $item_unit['item_condition'],
-                        'status' => 'AVAILABLE',
-                        'date_acquired' => $request->acquisition_date,
+                        'availability_status' => 'AVAILABLE',
+                        'operational_status' => 'OPERATIONAL',
+                        'date_acquired' => now(),
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];

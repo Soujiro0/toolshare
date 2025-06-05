@@ -33,14 +33,14 @@ class AuthController extends Controller
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'User not found'
+                    'message' => 'User not found.'
                 ], 404);
             }
 
             if (!Hash::check($validated['password'], $user->password)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Incorrect password'
+                    'message' => 'Incorrect password.'
                 ], 401);
             }
 
@@ -48,25 +48,24 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Login successful',
+                'message' => 'Login successful.',
                 'token' => $token,
                 'user' => [
                     'user_id' => $user->user_id,
                     'name' => $user->name,
-                    'username' => $user->username,
                     'role' => $user->role_name,
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
+                'message' => 'Validation failed.',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Something went wrong during login',
+                'message' => 'Something went wrong during login.',
                 'error' => $e->getMessage()
             ], 500);
         }

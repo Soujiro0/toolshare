@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\ItemUnitModel;
 use App\Http\Resources\ItemUnitResource;
 use Illuminate\Http\Request;
-
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Helpers\ItemUnitHelper;
 class ItemUnitController extends Controller
 {
     /**
@@ -16,12 +17,14 @@ class ItemUnitController extends Controller
         try {
             $itemUnits = ItemUnitModel::with('item')->get();
             return response()->json([
+                'success' => true,
                 'message' => 'Item units retrieved successfully.',
                 'total' => $itemUnits->count(),
                 'data' => ItemUnitResource::collection($itemUnits)
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Error retrieving item units.',
                 'error' => $e->getMessage()
             ], 500);
@@ -33,23 +36,35 @@ class ItemUnitController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'item_id' => 'required|exists:tbl_items,item_id',
-            'property_no' => 'required|string|unique:tbl_item_units,property_no',
-            'brand' => 'nullable|string|max:100',
-            'model' => 'nullable|string|max:100',
-            'specification' => 'nullable|string',
-            'item_condition' => 'in:EXCELLENT,GOOD,FAIR,POOR',
-            'status' => 'in:AVAILABLE,IN_USE,UNDER_MAINTENANCE',
-            'date_acquired' => 'nullable|date',
-        ]);
+        try {
+            $request->validate([
+                'item_id' => 'required|exists:tbl_items,item_id',
+                'brand' => 'nullable|string|max:100',
+                'model' => 'nullable|string|max:100',
+                'specification' => 'nullable|string',
+                'item_condition' => 'in:GOOD,FAIR,DAMAGED,LOST',
+                'availability_status' => 'in:AVAILABLE,BORROWED,NOT_AVAILABLE',
+                'operational_status' => 'in:OPERATIONAL,UNDER_MAINTENANCE,FOR_DISPOSAL',
+                'date_acquired' => 'nullable|date',
+            ]);
 
-        $itemUnit = ItemUnitModel::create($request->all());
+            $data = $request->all();
+            $data['property_no'] = ItemUnitHelper::generatePropertyNumbers($request['item_id'], 1)[0];
 
-        return response()->json([
-            'message' => 'Item unit created successfully.',
-            'data' => new ItemUnitResource($itemUnit->load('item'))
-        ], 201);
+            $itemUnit = ItemUnitModel::create($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item unit created successfully.',
+                'data' => new ItemUnitResource($itemUnit->load('item'))
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating item unit',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -57,11 +72,26 @@ class ItemUnitController extends Controller
      */
     public function show($id)
     {
-        $itemUnit = ItemUnitModel::with('item')->findOrFail($id);
-        return response()->json([
-            'message' => 'Item unit retrieved successfully.',
-            'data' => new ItemUnitResource($itemUnit)
-        ], 200);
+        try {
+            $itemUnit = ItemUnitModel::with('item')->findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'message' => 'Item unit retrieved successfully.',
+                'data' => new ItemUnitResource($itemUnit)
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No item unit found.',
+                'error' => $e->getMessage(),
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving item unit.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -69,24 +99,32 @@ class ItemUnitController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $itemUnit = ItemUnitModel::findOrFail($id);
-        $request->validate([
-            // 'item_id' => 'required|exists:tbl_items,item_id',
-            // 'property_no' => 'required|string|unique:tbl_item_units,property_no,' . $itemUnit->unit_id . ',unit_id',
-            'brand' => 'nullable|string|max:100',
-            'model' => 'nullable|string|max:100',
-            'specification' => 'nullable|string',
-            'item_condition' => 'in:EXCELLENT,GOOD,FAIR,POOR',
-            'status' => 'in:AVAILABLE,IN_USE,UNDER_MAINTENANCE',
-            'date_acquired' => 'nullable|date',
-        ]);
+        try {
+            $itemUnit = ItemUnitModel::findOrFail($id);
 
-        $itemUnit->update($request->all());
+            $request->validate([
+                'brand' => 'nullable|string|max:100',
+                'model' => 'nullable|string|max:100',
+                'specification' => 'nullable|string',
+                'item_condition' => 'in:EXCELLENT,GOOD,FAIR,POOR',
+                'status' => 'in:AVAILABLE,IN_USE,UNDER_MAINTENANCE',
+                'date_acquired' => 'nullable|date',
+            ]);
 
-        return response()->json([
-            'message' => 'Item unit updated successfully.',
-            'data' => new ItemUnitResource($itemUnit->load('item'))
-        ], 200);
+            $itemUnit->update($request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item unit updated successfully.',
+                'data' => new ItemUnitResource($itemUnit->load('item'))
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating item unit.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -94,11 +132,26 @@ class ItemUnitController extends Controller
      */
     public function destroy($id)
     {
-        $itemUnit = ItemUnitModel::findOrFail($id);
-        $itemUnit->delete();
+        try {
+            $itemUnit = ItemUnitModel::findOrFail($id);
+            $itemUnit->delete();
 
-        return response()->json([
-            'message' => 'Item unit deleted successfully.'
-        ], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'Item unit deleted successfully.'
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No item unit found.',
+                'error' => $e->getMessage(),
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting item unit.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -18,11 +18,16 @@ return new class extends Migration
             $table->string('brand', 100)->nullable();
             $table->string('model', 100)->nullable();
             $table->text('specification')->nullable();
-            $table->enum('item_condition', ['EXCELLENT', 'GOOD', 'FAIR', 'POOR'])->default('EXCELLENT');
-            $table->enum('status', ['AVAILABLE', 'IN_USE', 'UNDER_MAINTENANCE'])->default('AVAILABLE');
+
+            $table->enum('item_condition', ['GOOD', 'FAIR', 'DAMAGED', 'LOST'])->default('GOOD');
+
+            $table->enum('availability_status', ['AVAILABLE', 'BORROWED', 'NOT_AVAILABLE'])->default('AVAILABLE');
+            $table->enum('operational_status', ['OPERATIONAL', 'UNDER_MAINTENANCE', 'FOR_DISPOSAL'])->default('OPERATIONAL');
+
             $table->date('date_acquired')->nullable();
-            $table->foreign('item_id')->references('item_id')->on('tbl_items')->onDelete('cascade');
             $table->timestamps();
+
+            $table->foreign('item_id')->references('item_id')->on('tbl_items')->onDelete('cascade');
         });
     }
 

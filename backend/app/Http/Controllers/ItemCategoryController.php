@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\ItemCategoryModel;
 use App\Http\Resources\ItemCategoryResource;
@@ -14,12 +15,21 @@ class ItemCategoryController extends Controller
      */
     public function index()
     {
-        $categories = ItemCategoryModel::all();
-        return response()->json([
-            'message' => 'Item categories retrieved successfully.',
-            'total' => $categories->count(),
-            'data' => ItemCategoryResource::collection($categories)
-        ], 200);
+        try {
+            $categories = ItemCategoryModel::all();
+            return response()->json([
+                'success' => true,
+                'message' => 'Item categories retrieved successfully.',
+                'total' => $categories->count(),
+                'data' => ItemCategoryResource::collection($categories)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving categories.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -27,14 +37,23 @@ class ItemCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'category_name' => 'required|string|unique:tbl_item_category'
-        ]);
-        $category = ItemCategoryModel::create($request->all());
-        return response()->json([
-            'message' => 'Item category created successfully.',
-            'data' => new ItemCategoryResource($category)
-        ], 201);
+        try {
+            $request->validate([
+                'category_name' => 'required|string|unique:tbl_item_category'
+            ]);
+            $category = ItemCategoryModel::create($request->all());
+            return response()->json([
+                'success' => true,
+                'message' => 'Item category created successfully.',
+                'data' => new ItemCategoryResource($category)
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating item category.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -42,11 +61,26 @@ class ItemCategoryController extends Controller
      */
     public function show($id)
     {
-        $category = ItemCategoryModel::findOrFail($id);
-        return response()->json([
-            'message' => 'Item category retrived successfully.',
-            'data' =>  new ItemCategoryResource($category)
-        ], 200);
+        try {
+            $category = ItemCategoryModel::findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'message' => 'Item category retrived successfully.',
+                'data' =>  new ItemCategoryResource($category)
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No item category found.',
+                'error' =>  $e->getMessage(),
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving item category.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -54,17 +88,25 @@ class ItemCategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validate the input
-        $request->validate([
-            'category_name' => 'required|string|unique:tbl_item_category,category_name,' . $id . ',category_id'
-        ]);
+        try {
+            $request->validate([
+                'category_name' => 'required|string|unique:tbl_item_category,category_name,' . $id . ',category_id'
+            ]);
 
-        $itemCategory = ItemCategoryModel::findOrFail($id);
-        $itemCategory->update($request->all());
-        return response()->json([
-            'message' => 'Item category updated successfully.',
-            'data' => new ItemCategoryResource($itemCategory),
-        ], 200);
+            $itemCategory = ItemCategoryModel::findOrFail($id);
+            $itemCategory->update($request->all());
+            return response()->json([
+                'success' => true,
+                'message' => 'Item category updated successfully.',
+                'data' => new ItemCategoryResource($itemCategory),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating item category.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -72,10 +114,25 @@ class ItemCategoryController extends Controller
      */
     public function destroy($id)
     {
-        $itemCategory = ItemCategoryModel::findOrFail($id);
-        $itemCategory->delete();
-        return response()->json([
-            'message' => 'Item category delete successfully.'
-        ], 200);
+        try {
+            $itemCategory = ItemCategoryModel::findOrFail($id);
+            $itemCategory->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Item category delete successfully.'
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No item category found.',
+                'error' => $e->getMessage(),
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting item category.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
